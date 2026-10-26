@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { ADMIN_WA_NUMBER, ADMIN_WA_DISPLAY } from '../types/order';
 import { trackWhatsAppClick } from '../utils/analytics';
+import { FacebookOfficialIcon, InstagramOfficialIcon } from './Footer';
 
 interface ContactPageSectionProps {
   onNavigateToOrder?: () => void;
@@ -235,10 +236,11 @@ Mohon responnya ya Admin. Terima kasih!`;
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-1.5 p-2 rounded-xl bg-[#1877F2]/10 hover:bg-[#1877F2]/20 border border-[#1877F2]/30 text-[#1877F2] font-bold text-xs transition-colors"
-                      title="Follow Facebook Indo Digital"
+                      title="Follow Our Page di Facebook"
+                      aria-label="Follow Our Page di Facebook"
                     >
-                      <Facebook className="w-3.5 h-3.5 fill-[#1877F2]" size={14} />
-                      <span>Facebook</span>
+                      <FacebookOfficialIcon size={16} />
+                      <span>Follow Our Page</span>
                     </a>
 
                     <a
@@ -246,10 +248,11 @@ Mohon responnya ya Admin. Terima kasih!`;
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-1.5 p-2 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-pink-500/30 text-pink-700 font-bold text-xs transition-colors"
-                      title="Follow Instagram @indo_digital.2026"
+                      title="Follow Instagram Kami @indo_digital.2026"
+                      aria-label="Follow Instagram Kami @indo_digital.2026"
                     >
-                      <Instagram className="w-3.5 h-3.5 text-pink-600" size={14} />
-                      <span>Instagram</span>
+                      <InstagramOfficialIcon size={16} />
+                      <span>Follow Instagram</span>
                     </a>
                   </div>
                 </div>

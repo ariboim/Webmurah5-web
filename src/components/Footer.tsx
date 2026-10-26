@@ -3,6 +3,52 @@ import { ADMIN_WA_DISPLAY, ADMIN_WA_NUMBER } from '../types/order';
 import { MessageCircle, ShieldCheck, Heart, ExternalLink, Sparkles, ArrowRight, Home, FileEdit, PhoneCall, MapPin, BookOpen, Lock, Briefcase, Instagram, Facebook } from 'lucide-react';
 import { PageTab } from './Navbar';
 
+// Self-contained official Facebook vector logo - 100% bundled into JavaScript
+export const FacebookOfficialIcon: React.FC<{ size?: number; className?: string }> = ({ size = 20, className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    fill="none"
+    className={`shrink-0 ${className}`}
+    style={{ minWidth: size, minHeight: size }}
+  >
+    <circle cx="12" cy="12" r="12" fill="#1877F2" />
+    <path
+      d="M14.5 12.073h-2.14v7.927h-3.27v-7.927H7.5v-2.784h1.59V7.472C9.09 6.13 9.878 4 12.875 4l2.457.01v2.703h-1.782c-.303 0-.728.152-.728.795v1.78h2.527l-.849 2.785z"
+      fill="#FFFFFF"
+    />
+  </svg>
+);
+
+// Self-contained official Instagram vector logo with multi-stop gradient - 100% bundled into JavaScript
+export const InstagramOfficialIcon: React.FC<{ size?: number; className?: string }> = ({ size = 20, className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    fill="none"
+    className={`shrink-0 ${className}`}
+    style={{ minWidth: size, minHeight: size }}
+  >
+    <defs>
+      <linearGradient id="ig-grad-footer-svg" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#f09433" />
+        <stop offset="25%" stopColor="#e6683c" />
+        <stop offset="50%" stopColor="#dc2743" />
+        <stop offset="75%" stopColor="#cc2366" />
+        <stop offset="100%" stopColor="#bc1888" />
+      </linearGradient>
+    </defs>
+    <rect width="24" height="24" rx="6" fill="url(#ig-grad-footer-svg)" />
+    <rect x="5.5" y="5.5" width="13" height="13" rx="3.5" stroke="#FFFFFF" strokeWidth="1.6" />
+    <circle cx="12" cy="12" r="3.2" stroke="#FFFFFF" strokeWidth="1.6" />
+    <circle cx="15.8" cy="8.2" r="0.9" fill="#FFFFFF" />
+  </svg>
+);
+
 interface FooterProps {
   onTabChange?: (tab: PageTab) => void;
 }
@@ -46,42 +92,49 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
             </div>
 
             {/* Follow Our Page - Social Links */}
-            <div className="pt-2 flex flex-wrap items-center gap-2.5">
-              <a
-                href="https://www.facebook.com/profile.php?id=61595666643294"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1877F2]/20 hover:bg-[#1877F2]/30 border border-[#1877F2]/50 text-white font-bold text-xs transition-all group shadow-sm hover:shadow-[#1877F2]/25 cursor-pointer"
-                title="Follow Facebook Indo Digital"
-                aria-label="Follow Facebook Indo Digital"
-                style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
-              >
-                <span className="w-6 h-6 rounded-lg bg-[#1877F2] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform" style={{ minWidth: 24, minHeight: 24 }}>
-                  <Facebook className="w-3.5 h-3.5 text-white fill-white shrink-0" size={14} />
-                </span>
-                <span className="text-slate-100 group-hover:text-white transition-colors text-xs font-semibold">
-                  Facebook Page
-                </span>
-                <ExternalLink className="w-3.5 h-3.5 text-blue-300 group-hover:text-white transition-transform shrink-0" size={14} />
-              </a>
+            <div className="pt-2 space-y-2">
+              <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                Ikuti Media Sosial Resmi:
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <a
+                  href="https://www.facebook.com/profile.php?id=61595666643294"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#1877F2]/20 hover:bg-[#1877F2]/30 border border-[#1877F2]/50 text-white font-bold text-xs transition-all group shadow-sm hover:shadow-[#1877F2]/25 cursor-pointer"
+                  title="Follow Our Page di Facebook"
+                  aria-label="Follow Our Page di Facebook"
+                  style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
+                >
+                  <FacebookOfficialIcon size={22} />
+                  <div className="text-left">
+                    <div className="text-slate-100 group-hover:text-white transition-colors text-xs font-bold leading-tight">
+                      Follow Our Page
+                    </div>
+                    <div className="text-[10px] text-blue-300 font-medium">Facebook Resmi</div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-blue-300 group-hover:text-white transition-transform shrink-0 ml-0.5" size={14} />
+                </a>
 
-              <a
-                href="https://www.instagram.com/indo_digital.2026?obrf=NnE1b3E5ZXBnOWc0"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-amber-500/20 hover:from-purple-500/30 hover:to-amber-500/30 border border-pink-500/50 text-white font-bold text-xs transition-all group shadow-sm hover:shadow-pink-500/25 cursor-pointer"
-                title="Follow Instagram @indo_digital.2026"
-                aria-label="Follow Instagram @indo_digital.2026"
-                style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
-              >
-                <span className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform" style={{ minWidth: 24, minHeight: 24 }}>
-                  <Instagram className="w-3.5 h-3.5 text-white shrink-0" size={14} />
-                </span>
-                <span className="text-slate-100 group-hover:text-pink-200 transition-colors text-xs font-semibold">
-                  Instagram
-                </span>
-                <ExternalLink className="w-3.5 h-3.5 text-pink-300 group-hover:text-white transition-transform shrink-0" size={14} />
-              </a>
+                <a
+                  href="https://www.instagram.com/indo_digital.2026?obrf=NnE1b3E5ZXBnOWc0"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-amber-500/20 hover:from-purple-500/30 hover:to-amber-500/30 border border-pink-500/50 text-white font-bold text-xs transition-all group shadow-sm hover:shadow-pink-500/25 cursor-pointer"
+                  title="Follow Instagram Kami @indo_digital.2026"
+                  aria-label="Follow Instagram Kami @indo_digital.2026"
+                  style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
+                >
+                  <InstagramOfficialIcon size={22} />
+                  <div className="text-left">
+                    <div className="text-slate-100 group-hover:text-pink-200 transition-colors text-xs font-bold leading-tight">
+                      Follow Instagram Kami
+                    </div>
+                    <div className="text-[10px] text-pink-300 font-medium">@indo_digital.2026</div>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-pink-300 group-hover:text-white transition-transform shrink-0 ml-0.5" size={14} />
+                </a>
+              </div>
             </div>
           </div>
 
@@ -209,12 +262,12 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-[#1877F2] hover:bg-[#166FE5] text-white rounded-xl font-bold text-xs transition-all shadow-md hover:shadow-blue-500/25 group cursor-pointer"
-                  title="Follow Facebook Indo Digital"
-                  aria-label="Follow Facebook Indo Digital"
+                  title="Follow Our Page di Facebook"
+                  aria-label="Follow Our Page di Facebook"
                   style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
                 >
-                  <Facebook className="w-4 h-4 text-white fill-white shrink-0 group-hover:scale-110 transition-transform" size={16} />
-                  <span>Facebook Page</span>
+                  <FacebookOfficialIcon size={18} />
+                  <span>Follow Our Page</span>
                   <ExternalLink className="w-3.5 h-3.5 text-blue-200 group-hover:translate-x-0.5 transition-transform shrink-0" size={14} />
                 </a>
 
@@ -223,12 +276,12 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] hover:opacity-95 text-white rounded-xl font-bold text-xs transition-all shadow-md hover:shadow-pink-500/25 group cursor-pointer"
-                  title="Follow Instagram @indo_digital.2026"
-                  aria-label="Follow Instagram @indo_digital.2026"
+                  title="Follow Instagram Kami @indo_digital.2026"
+                  aria-label="Follow Instagram Kami @indo_digital.2026"
                   style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
                 >
-                  <Instagram className="w-4 h-4 text-white shrink-0 group-hover:scale-110 transition-transform" size={16} />
-                  <span>Instagram</span>
+                  <InstagramOfficialIcon size={18} />
+                  <span>Follow Instagram Kami</span>
                   <ExternalLink className="w-3.5 h-3.5 text-pink-200 group-hover:translate-x-0.5 transition-transform shrink-0" size={14} />
                 </a>
               </div>
@@ -289,12 +342,12 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-blue-400 text-slate-300 cursor-pointer inline-flex items-center gap-1.5 font-semibold transition-colors"
-              title="Follow our page di Facebook"
-              aria-label="Facebook Page Indo Digital"
+              title="Follow Our Page di Facebook"
+              aria-label="Follow Our Page di Facebook"
               style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
             >
-              <Facebook className="w-3.5 h-3.5 text-[#1877F2] fill-[#1877F2] shrink-0" size={14} />
-              <span>Facebook</span>
+              <FacebookOfficialIcon size={16} />
+              <span>Follow Our Page</span>
             </a>
             <span>•</span>
             <a
@@ -302,14 +355,12 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-pink-400 text-slate-300 cursor-pointer inline-flex items-center gap-1.5 font-semibold transition-colors"
-              title="Follow kami di Instagram"
-              aria-label="Instagram @indo_digital.2026"
+              title="Follow Instagram Kami"
+              aria-label="Follow Instagram Kami"
               style={{ display: 'inline-flex', visibility: 'visible', opacity: 1 }}
             >
-              <span className="w-4 h-4 rounded bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] inline-flex items-center justify-center p-0.5 shadow-2xs shrink-0" style={{ minWidth: 16, minHeight: 16 }}>
-                <Instagram className="w-2.5 h-2.5 text-white shrink-0" size={10} />
-              </span>
-              <span>Instagram</span>
+              <InstagramOfficialIcon size={16} />
+              <span>Follow Instagram Kami</span>
             </a>
           </div>
         </div>
