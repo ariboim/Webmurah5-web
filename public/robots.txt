@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://indo-digital.myr.id/sitemap.xml
+
+# Google Site Verification Note
+# Token: ez3PPngLLzR9N5oWru-nh_vT-YcBeL5--Y-BlX-Gozo

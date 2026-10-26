@@ -1,0 +1,31 @@
+[
+  {
+    "id": "log-1792909280991",
+    "timestamp": "2026-10-25T06:21:20.991Z",
+    "articleId": "art-tes-artikel-integrasi-ai-studio-0989",
+    "articleTitle": "Tes Artikel Integrasi AI Studio",
+    "source": "ai_studio_api",
+    "recipientCount": 1,
+    "recipients": [
+      "bca.ccpl@gmail.com"
+    ],
+    "status": "CONFIG_REQUIRED",
+    "provider": "smtp.gmail.com",
+    "errorDetails": "Kredensial SMTP belum diatur (user/password kosong). Email otomatis ke subscriber tidak dapat dikirim ke server email. Silakan isi konfigurasi SMTP (Gmail App Password 16 karakter) pada tab Pengaturan SMTP di Admin Panel.",
+    "durationMs": 0
+  },
+  {
+    "id": "log-test-1792909276317",
+    "timestamp": "2026-10-25T06:21:16.317Z",
+    "articleTitle": "Uji Coba Pengiriman Email",
+    "source": "test_send",
+    "recipientCount": 1,
+    "recipients": [
+      "bca.ccpl@gmail.com"
+    ],
+    "status": "CONFIG_REQUIRED",
+    "provider": "smtp.gmail.com",
+    "errorDetails": "Kredensial SMTP belum diatur (User atau Password kosong). Harap masukkan kredensial di Form SMTP Pengirim.",
+    "durationMs": 0
+  }
+]
