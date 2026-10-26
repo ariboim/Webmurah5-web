@@ -14,6 +14,8 @@ import {
   HelpCircle,
   Building2,
   ArrowRight,
+  Facebook,
+  Instagram,
 } from 'lucide-react';
 import { ADMIN_WA_NUMBER, ADMIN_WA_DISPLAY } from '../types/order';
 import { trackWhatsAppClick } from '../utils/analytics';
@@ -219,6 +221,36 @@ Mohon responnya ya Admin. Terima kasih!`;
                   <div>
                     <div className="text-[10px] text-slate-400 font-bold uppercase">Layanan Utama:</div>
                     <div className="font-semibold text-slate-900">Jasa Landing Page Kilat & Web UMKM</div>
+                  </div>
+                </div>
+
+                {/* Social Media Official Links */}
+                <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    Media Sosial Resmi:
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <a
+                      href="https://www.facebook.com/profile.php?id=61595666643294"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 p-2 rounded-xl bg-[#1877F2]/10 hover:bg-[#1877F2]/20 border border-[#1877F2]/30 text-[#1877F2] font-bold text-xs transition-colors"
+                      title="Follow Facebook Indo Digital"
+                    >
+                      <Facebook className="w-3.5 h-3.5 fill-[#1877F2]" size={14} />
+                      <span>Facebook</span>
+                    </a>
+
+                    <a
+                      href="https://www.instagram.com/indo_digital.2026?obrf=NnE1b3E5ZXBnOWc0"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 p-2 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-pink-500/30 text-pink-700 font-bold text-xs transition-colors"
+                      title="Follow Instagram @indo_digital.2026"
+                    >
+                      <Instagram className="w-3.5 h-3.5 text-pink-600" size={14} />
+                      <span>Instagram</span>
+                    </a>
                   </div>
                 </div>
               </div>
