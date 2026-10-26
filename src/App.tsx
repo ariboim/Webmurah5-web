@@ -4,6 +4,7 @@ import { TopFlashSaleBar } from './components/TopFlashSaleBar';
 import { Navbar, PageTab } from './components/Navbar';
 import { AnimatedMarqueeBanner } from './components/AnimatedMarqueeBanner';
 import { HeroSection } from './components/HeroSection';
+import { LiveActivityTicker } from './components/LiveActivityTicker';
 import { TrustBadgesSection } from './components/TrustBadgesSection';
 import { VideoLandingPageSection } from './components/VideoLandingPageSection';
 import { UmkmBenefitsSection } from './components/UmkmBenefitsSection';
@@ -147,6 +148,15 @@ export default function App() {
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
               <HeroSection />
+            </motion.div>
+
+            {/* Live Activity Ticker (Real-Time Social Proof & Recent Sales) */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              <LiveActivityTicker />
             </motion.div>
 
             {/* Official Trust Badges & Guarantee Bar */}
