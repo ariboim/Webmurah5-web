@@ -18,7 +18,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { MitraAccount } from '../../types/mitra';
-import { registerMitra, loginMitra, loginMitraAsync, getAllMitra } from '../../utils/mitraStorage';
+import { registerMitra, loginMitra, loginMitraAsync, getAllMitra, syncMitraFromServer } from '../../utils/mitraStorage';
 
 interface MitraAuthCardProps {
   onLoginSuccess: (mitra: MitraAccount) => void;
@@ -30,6 +30,11 @@ export const MitraAuthCard: React.FC<MitraAuthCardProps> = ({
   onNavigateToAdmin,
 }) => {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('register');
+
+  useEffect(() => {
+    // Keep local storage fresh with server & static registry
+    syncMitraFromServer().catch(() => {});
+  }, []);
 
   // Register Form State
   const [regNama, setRegNama] = useState('');
@@ -260,6 +265,7 @@ export const MitraAuthCard: React.FC<MitraAuthCardProps> = ({
             onClick={() => {
               setActiveTab('login');
               setErrorMsg(null);
+              syncMitraFromServer().catch(() => {});
             }}
             className={`py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
               activeTab === 'login'
