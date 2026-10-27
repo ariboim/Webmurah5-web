@@ -7,6 +7,7 @@ import {
   formatOrderToWhatsApp,
 } from '../types/order';
 import { trackOrderSubmission } from '../utils/analytics';
+import { OrderSuccessAnimation } from './OrderSuccessAnimation';
 import {
   Send,
   MessageCircle,
@@ -104,6 +105,7 @@ export const OrderFormSection: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(true);
 
   // Pilihan Paket: 'umkm' vs 'elite'
@@ -456,10 +458,15 @@ export const OrderFormSection: React.FC = () => {
     }
 
     setSubmittedSuccess(true);
+    setShowSuccessModal(true);
     const finalPrice = isPromoActive ? 249000 : 499000;
     trackOrderSubmission(formData.namaBisnis, finalPrice);
     const waUrl = generateWhatsAppUrl(formData, isPromoActive);
-    window.open(waUrl, '_blank', 'noopener,noreferrer');
+    try {
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+    } catch {
+      // Handled via modal action button if blocked
+    }
   };
 
   const handleCopyText = () => {
@@ -1756,24 +1763,46 @@ export const OrderFormSection: React.FC = () => {
               </div>
 
               {submittedSuccess && (
-                  <div className="p-4 bg-sky-50 border border-sky-200 rounded-xl text-center text-xs text-sky-900 font-medium">
-                    WhatsApp sedang dibuka! Jika jendela WhatsApp tidak terbuka otomatis karena diblokir browser, silakan{' '}
+                <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-2xl text-center text-xs text-emerald-950 font-medium shadow-xs space-y-2">
+                  <div className="flex items-center justify-center gap-2 font-bold text-emerald-900">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Pesanan berhasil disiapkan! WhatsApp sedang dibuka.</span>
+                  </div>
+                  <p className="text-slate-600 text-[11px]">
+                    Jika WhatsApp tidak terbuka otomatis karena diblokir browser, silakan{' '}
                     <a
                       href={generateWhatsAppUrl(formData, isPromoActive)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-bold underline text-sky-700"
+                      className="font-bold underline text-emerald-700 hover:text-emerald-800"
                     >
-                      klik tautan langsung ini
+                      klik tautan langsung WhatsApp ini
                     </a>{' '}
-                    atau salin rincian pesanan di atas lalu kirimkan manual ke <strong>0896-7368-6625</strong>.
-                  </div>
-                )}
+                    atau{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowSuccessModal(true)}
+                      className="font-bold underline text-teal-700 hover:text-teal-900 cursor-pointer"
+                    >
+                      tampilkan animasi &amp; rincian pesanan lagi
+                    </button>.
+                  </p>
+                </div>
+              )}
               </div>
             </form>
           </div>
         </div>
       </div>
+
+      {/* Lottie-Style / Framer Motion Success Animation Modal */}
+      <OrderSuccessAnimation
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        formData={formData}
+        isPromoActive={isPromoActive}
+        selectedPackage={selectedPackage}
+      />
     </section>
   );
 };
