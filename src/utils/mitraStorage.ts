@@ -349,25 +349,12 @@ export async function syncMitraFromServer(): Promise<MitraAccount[]> {
       // Merge server and local lists (Server is master, local new ones added)
       const merged = mergeMitraLists(serverList, localList);
       saveAllMitra(merged);
-      return merged;
-    }
-  } catch (err) {
-    // Backend API might be unreachable (offline/client-only), fallback to local storage
-  } finally {
-    isSyncing = false;
-  }
 
-  return getAllMitra();
-}
-          }
-        }
-
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('mitra-updated', { detail: merged }));
-        }
-
-        return merged;
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('mitra-updated', { detail: merged }));
       }
+
+      return merged;
     }
   } catch (err) {
     // Backend API might be unreachable (offline/client-only), fallback to local storage

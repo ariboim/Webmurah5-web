@@ -25,6 +25,8 @@ import {
   UserPlus,
   Copy,
   Check,
+  MapPin,
+  CreditCard,
 } from 'lucide-react';
 import { MitraAccount, MitraStatus } from '../../types/mitra';
 import {
@@ -46,6 +48,7 @@ export const AdminMitraManagement: React.FC<{
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedRekeningId, setCopiedRekeningId] = useState<string | null>(null);
 
   // Modal Manual Add State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -53,6 +56,9 @@ export const AdminMitraManagement: React.FC<{
   const [addEmail, setAddEmail] = useState('');
   const [addPhone, setAddPhone] = useState('');
   const [addKota, setAddKota] = useState('');
+  const [addBank, setAddBank] = useState('BCA');
+  const [addRekening, setAddRekening] = useState('');
+  const [addNamaRekening, setAddNamaRekening] = useState('');
   const [addStatus, setAddStatus] = useState<MitraStatus>('PENDING_APPROVAL');
   const [addNotes, setAddNotes] = useState('');
   const [addError, setAddError] = useState<string | null>(null);
@@ -134,6 +140,20 @@ export const AdminMitraManagement: React.FC<{
     }
   };
 
+  const handleCopyRekening = (id: string, rekening: string) => {
+    if (!rekening) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(rekening).then(() => {
+        setCopiedRekeningId(id);
+        setTimeout(() => setCopiedRekeningId(null), 2000);
+      }).catch(() => {
+        prompt('Salin nomor rekening:', rekening);
+      });
+    } else {
+      prompt('Salin nomor rekening:', rekening);
+    }
+  };
+
   // Actions
   const handleApprove = (id: string) => {
     const ok = approveMitra(id);
@@ -186,6 +206,9 @@ export const AdminMitraManagement: React.FC<{
       email: addEmail.trim(),
       noHpWa: addPhone.trim(),
       kotaDomisili: addKota.trim() || 'Indonesia',
+      namaBank: addBank.trim() || 'BCA',
+      nomorRekening: addRekening.trim(),
+      namaPemilikRekening: addNamaRekening.trim() || addNama.trim(),
       status: addStatus,
       adminNotes: addNotes.trim() || 'Diinput manual oleh admin',
     });
@@ -196,6 +219,9 @@ export const AdminMitraManagement: React.FC<{
       setAddEmail('');
       setAddPhone('');
       setAddKota('');
+      setAddBank('BCA');
+      setAddRekening('');
+      setAddNamaRekening('');
       setAddNotes('');
       setAddStatus('PENDING_APPROVAL');
       loadData();
@@ -536,15 +562,25 @@ export const AdminMitraManagement: React.FC<{
 
       {/* Partners Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        {/* Mobile Horizontal Scroll Indicator Banner */}
+        <div className="sm:hidden px-4 py-2 bg-gradient-to-r from-sky-50 to-indigo-50 border-b border-sky-100 text-sky-800 text-[11px] font-bold flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <span>👉 Geser tabel ke kanan untuk melihat nomor rekening &amp; aksi</span>
+          </span>
+          <span className="text-[10px] bg-sky-200/60 px-2 py-0.5 rounded-full font-black text-[#1D3582]">
+            {filteredList.length} Mitra
+          </span>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[820px]">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-bold tracking-wider text-[10px]">
               <tr>
-                <th className="py-3 px-4">Mitra &amp; Kontak</th>
-                <th className="py-3 px-4">Status Akun</th>
-                <th className="py-3 px-4">Domisili &amp; Rekening</th>
-                <th className="py-3 px-4">Tgl Registrasi</th>
-                <th className="py-3 px-4 text-right">Aksi Cepat</th>
+                <th className="py-3 px-4 min-w-[230px]">Mitra &amp; Kontak</th>
+                <th className="py-3 px-4 min-w-[140px]">Status Akun</th>
+                <th className="py-3 px-4 min-w-[250px]">Domisili &amp; Rekening</th>
+                <th className="py-3 px-4 min-w-[120px]">Tgl Registrasi</th>
+                <th className="py-3 px-4 min-w-[170px] text-right">Aksi Cepat</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
@@ -568,10 +604,18 @@ export const AdminMitraManagement: React.FC<{
                   const cleanPhone = m.noHpWa.replace(/\D/g, '');
                   const waNumber = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
 
+                  // Normalize bank and account fields across all potential property names
+                  const bankName = m.namaBank || (m as any).bank || 'BCA';
+                  const rawRek = m.nomorRekening || (m as any).noRekening || (m as any).rekening || (m as any).accountNumber || '';
+                  const rekNum = typeof rawRek === 'string' ? rawRek.trim() : String(rawRek || '').trim();
+                  const pemRek = m.namaPemilikRekening || (m as any).atasNama || (m as any).namaRekening || '';
+                  const hasRekening = Boolean(rekNum && rekNum !== '-' && rekNum !== 'undefined' && rekNum !== 'null' && rekNum.length > 2);
+                  const isCopied = copiedRekeningId === m.id;
+
                   return (
                     <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
                       {/* Name & Contact */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 min-w-[230px]">
                         <div className="flex items-center gap-2.5">
                           <img
                             src={
@@ -603,7 +647,7 @@ export const AdminMitraManagement: React.FC<{
                       </td>
 
                       {/* Status */}
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 min-w-[140px]">
                         {m.status === 'PENDING_APPROVAL' && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 font-black text-[10px] uppercase border border-amber-200 animate-pulse">
                             <Clock className="w-3 h-3 text-amber-700" />
@@ -630,23 +674,71 @@ export const AdminMitraManagement: React.FC<{
                         )}
                       </td>
 
-                      {/* Domisili & Bank */}
-                      <td className="py-3.5 px-4">
-                        <div className="text-slate-800 font-semibold">
-                          {m.kotaDomisili || 'Indonesia'}
+                      {/* Domisili & Bank Rekening */}
+                      <td className="py-3.5 px-4 min-w-[250px]">
+                        {/* Domisili */}
+                        <div className="flex items-center gap-1.5 text-slate-900 font-black text-xs">
+                          <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                          <span>{m.kotaDomisili || (m as any).domisili || 'Indonesia'}</span>
                         </div>
-                        <div className="text-[10px] text-slate-500">
-                          {m.namaBank ? `${m.namaBank} - ${m.nomorRekening || '-'}` : 'Belum diisi'}
-                        </div>
+
+                        {/* Rekening Info - High Contrast & Never Truncated */}
+                        {hasRekening ? (
+                          <div className="mt-1.5 bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 rounded-xl p-2 transition-colors space-y-1">
+                            <div className="flex items-center justify-between gap-1.5">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="px-1.5 py-0.5 rounded bg-sky-100 text-[#1D3582] font-black text-[10px] tracking-wide uppercase border border-sky-200 shrink-0">
+                                  {bankName}
+                                </span>
+                                <span className="font-mono font-bold text-xs text-slate-900 select-all tracking-wider">
+                                  {rekNum}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyRekening(m.id, rekNum)}
+                                className="p-1 rounded-md text-slate-400 hover:text-[#1D3582] hover:bg-white transition-all cursor-pointer shrink-0"
+                                title="Salin nomor rekening ke clipboard"
+                              >
+                                {isCopied ? (
+                                  <span className="flex items-center text-[10px] text-emerald-600 font-bold gap-0.5">
+                                    <Check className="w-3 h-3" />
+                                    <span>Tersalin</span>
+                                  </span>
+                                ) : (
+                                  <Copy className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </div>
+                            <div className="text-[10px] text-slate-500 truncate" title={pemRek || m.namaLengkap}>
+                              a.n. <span className="font-semibold text-slate-800">{pemRek || m.namaLengkap}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mt-1 flex items-center justify-between gap-2 bg-amber-50/80 border border-amber-200/80 rounded-xl px-2.5 py-1.5">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800">
+                              <CreditCard className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                              <span>Belum Isi Rekening</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(m)}
+                              className="text-[10px] font-black text-[#1D3582] bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs hover:bg-slate-50 cursor-pointer"
+                              title="Input nomor rekening mitra ini"
+                            >
+                              + Isi Rek
+                            </button>
+                          </div>
+                        )}
                       </td>
 
                       {/* Date */}
-                      <td className="py-3.5 px-4 text-slate-500 text-[11px]">
+                      <td className="py-3.5 px-4 min-w-[120px] text-slate-500 text-[11px] font-medium">
                         {m.tanggalBergabung || new Date(m.createdAt).toLocaleDateString('id-ID')}
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 min-w-[170px] text-right">
                         <div className="flex items-center justify-end gap-1.5 flex-wrap">
                           {/* If Pending: Approve / Reject */}
                           {m.status === 'PENDING_APPROVAL' && (
@@ -849,6 +941,55 @@ export const AdminMitraManagement: React.FC<{
                 </div>
               </div>
 
+              {/* Data Rekening Bank Mitra */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+                <div className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-[#1D3582]" />
+                  <span>Data Rekening Bank (Bagi Hasil)</span>
+                  <span className="text-[10px] text-slate-400 font-normal">(Opsional)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Bank</label>
+                    <select
+                      value={addBank}
+                      onChange={(e) => setAddBank(e.target.value)}
+                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D3582]"
+                    >
+                      <option value="BCA">BCA</option>
+                      <option value="Mandiri">Bank Mandiri</option>
+                      <option value="BRI">BRI</option>
+                      <option value="BNI">BNI</option>
+                      <option value="BSI">BSI (Syariah)</option>
+                      <option value="CIMB">CIMB Niaga</option>
+                      <option value="Permata">Permata</option>
+                      <option value="Jago">Bank Jago</option>
+                      <option value="SeaBank">SeaBank</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">No. Rekening</label>
+                    <input
+                      type="text"
+                      value={addRekening}
+                      onChange={(e) => setAddRekening(e.target.value)}
+                      placeholder="8410293812"
+                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D3582]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Nama Pemilik</label>
+                    <input
+                      type="text"
+                      value={addNamaRekening}
+                      onChange={(e) => setAddNamaRekening(e.target.value)}
+                      placeholder="Atas nama rekening"
+                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D3582]"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Catatan Admin
@@ -966,6 +1107,60 @@ export const AdminMitraManagement: React.FC<{
                     }
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D3582]"
                   />
+                </div>
+              </div>
+
+              {/* Data Rekening Bank Edit */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+                <div className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-[#1D3582]" />
+                  <span>Informasi Rekening Bank (Bagi Hasil)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Nama Bank</label>
+                    <select
+                      value={editFormData.namaBank || 'BCA'}
+                      onChange={(e) =>
+                        setEditFormData({ ...editFormData, namaBank: e.target.value })
+                      }
+                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D3582]"
+                    >
+                      <option value="BCA">BCA</option>
+                      <option value="Mandiri">Bank Mandiri</option>
+                      <option value="BRI">BRI</option>
+                      <option value="BNI">BNI</option>
+                      <option value="BSI">BSI (Syariah)</option>
+                      <option value="CIMB">CIMB Niaga</option>
+                      <option value="Permata">Permata</option>
+                      <option value="Jago">Bank Jago</option>
+                      <option value="SeaBank">SeaBank</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Nomor Rekening</label>
+                    <input
+                      type="text"
+                      value={editFormData.nomorRekening || ''}
+                      onChange={(e) =>
+                        setEditFormData({ ...editFormData, nomorRekening: e.target.value })
+                      }
+                      placeholder="Contoh: 7309876210"
+                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D3582]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Nama Pemilik</label>
+                    <input
+                      type="text"
+                      value={editFormData.namaPemilikRekening || ''}
+                      onChange={(e) =>
+                        setEditFormData({ ...editFormData, namaPemilikRekening: e.target.value })
+                      }
+                      placeholder="Nama di buku tabungan"
+                      className="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1D3582]"
+                    />
+                  </div>
                 </div>
               </div>
 
