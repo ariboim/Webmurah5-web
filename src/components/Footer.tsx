@@ -1,6 +1,6 @@
 import React from 'react';
 import { ADMIN_WA_DISPLAY, ADMIN_WA_NUMBER } from '../types/order';
-import { MessageCircle, ShieldCheck, Heart, ExternalLink, Sparkles, ArrowRight, Home, FileEdit, PhoneCall, MapPin, BookOpen, Lock, Briefcase, Instagram, Facebook } from 'lucide-react';
+import { MessageCircle, ShieldCheck, Heart, ExternalLink, Sparkles, ArrowRight, Home, FileEdit, PhoneCall, MapPin, BookOpen, Lock, Briefcase, Instagram, Facebook, GraduationCap } from 'lucide-react';
 import { PageTab } from './Navbar';
 
 // Self-contained official Facebook vector logo - 100% bundled into JavaScript
@@ -178,6 +178,15 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
                 >
                   <Briefcase className="w-3.5 h-3.5 text-indigo-400" />
                   <span>Kemitraan Mandiri (Non-PKWT)</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onTabChange ? onTabChange('panduan-agen') : (window.location.hash = '#/panduan-agen')}
+                  className="hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-2 text-amber-300 font-semibold"
+                >
+                  <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Panduan Agen ( MT ) - Sertifikasi</span>
                 </button>
               </li>
               <li>

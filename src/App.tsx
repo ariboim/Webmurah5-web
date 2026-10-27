@@ -16,6 +16,7 @@ import { OrderPageSection } from './components/OrderPageSection';
 import { ContactPageSection } from './components/ContactPageSection';
 import { ArticlesPageSection } from './components/ArticlesPageSection';
 import { KemitraanPageSection } from './components/KemitraanPageSection';
+import { PanduanAgenSection } from './components/PanduanAgenSection';
 import { AdminDashboard } from './components/AdminDashboard';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection } from './components/FaqSection';
@@ -24,7 +25,7 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { FloatingShare } from './components/FloatingShare';
 import { BackToTop } from './components/BackToTop';
 import { PromoModal } from './components/PromoModal';
-import { Sparkles, ArrowRight, MessageCircle, FileEdit, PhoneCall, ShieldCheck, Tag, Lock, Briefcase } from 'lucide-react';
+import { Sparkles, ArrowRight, MessageCircle, FileEdit, PhoneCall, ShieldCheck, Tag, Lock, Briefcase, GraduationCap } from 'lucide-react';
 import { ADMIN_WA_NUMBER, ADMIN_WA_DISPLAY } from './types/order';
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
       keys.some((k) => hash.includes(k) || search.includes(k) || path.includes('/' + k));
 
     if (isMatch(['admin', 'login-admin', 'dashboard'])) return 'admin';
+    if (isMatch(['panduan', 'panduan-agen', 'agen', 'mt', 'training', 'sertifikasi'])) return 'panduan-agen';
     if (isMatch(['kemitraan', 'mitra', 'partnership'])) return 'kemitraan';
     if (isMatch(['artikel', 'article', 'blog'])) return 'artikel';
     if (isMatch(['order', 'pesan', 'formulir'])) return 'order';
@@ -342,7 +344,22 @@ export default function App() {
           </motion.div>
         )}
 
-        {/* ================= PAGE 5: KONTAK KAMI (HUBUNGI KAMI) ================= */}
+        {/* ================= PAGE 5: PANDUAN AGEN (MT) - PORTAL SERTIFIKASI ================= */}
+        {activeTab === 'panduan-agen' && (
+          <motion.div
+            key="panduan-agen"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <PanduanAgenSection
+              onNavigateToOrder={() => handleTabChange('order')}
+              onNavigateToContact={() => handleTabChange('kontak')}
+            />
+          </motion.div>
+        )}
+
+        {/* ================= PAGE 6: KONTAK KAMI (HUBUNGI KAMI) ================= */}
         {activeTab === 'kontak' && (
           <motion.div
             key="kontak"

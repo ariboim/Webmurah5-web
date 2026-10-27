@@ -13,11 +13,12 @@ import {
   BookOpen,
   Lock,
   Briefcase,
+  GraduationCap,
 } from 'lucide-react';
 import { ADMIN_WA_NUMBER, ADMIN_WA_DISPLAY } from '../types/order';
 import { IndoDigitalLogo } from './IndoDigitalLogo';
 
-export type PageTab = 'home' | 'order' | 'artikel' | 'kemitraan' | 'kontak' | 'admin';
+export type PageTab = 'home' | 'order' | 'artikel' | 'kemitraan' | 'panduan-agen' | 'kontak' | 'admin';
 
 interface NavbarProps {
   activeTab: PageTab;
@@ -158,7 +159,24 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
               </span>
             </button>
 
-            {/* Tab 5: Kontak Kami */}
+            {/* Tab: Panduan Agen ( MT ) - Portal Edukasi & Sertifikasi */}
+            <button
+              onClick={() => handleSelectTab('panduan-agen')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer relative ${
+                activeTab === 'panduan-agen'
+                  ? 'bg-amber-500 text-slate-950 shadow-md ring-2 ring-amber-400 scale-[1.02]'
+                  : 'text-slate-700 hover:text-amber-900 hover:bg-amber-50'
+              }`}
+              title="Portal Edukasi & Sertifikasi Mitra: Panduan Agen ( MT )"
+            >
+              <GraduationCap className="w-4 h-4 text-amber-600" />
+              <span>Panduan Agen ( MT )</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-amber-200/90 text-amber-950 border border-amber-300">
+                Ujian 80%
+              </span>
+            </button>
+
+            {/* Tab: Kontak Kami */}
             <button
               onClick={() => handleSelectTab('kontak')}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
@@ -348,6 +366,23 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
               </button>
 
               <button
+                onClick={() => handleSelectTab('panduan-agen')}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-black transition-all ${
+                  activeTab === 'panduan-agen'
+                    ? 'bg-amber-500 text-slate-950 shadow-md ring-2 ring-amber-400'
+                    : 'bg-amber-50/70 text-slate-900 border border-amber-200'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <GraduationCap className="w-4 h-4 text-amber-600" />
+                  <span>5. Panduan Agen ( MT ) - Portal Sertifikasi</span>
+                </div>
+                <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-full shadow-2xs">
+                  Ujian 80%
+                </span>
+              </button>
+
+              <button
                 onClick={() => handleSelectTab('kontak')}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-black transition-all ${
                   activeTab === 'kontak'
@@ -357,7 +392,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
               >
                 <div className="flex items-center gap-2.5">
                   <PhoneCall className="w-4 h-4 text-emerald-600" />
-                  <span>5. Kontak Kami (WhatsApp & Studio)</span>
+                  <span>6. Kontak Kami (WhatsApp & Studio)</span>
                 </div>
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               </button>

@@ -26,6 +26,7 @@ import {
   Loader2,
   DollarSign,
   Briefcase,
+  GraduationCap,
 } from 'lucide-react';
 import { MitraAccount } from '../../types/mitra';
 import { updateMitraProfile, clearMitraSession } from '../../utils/mitraStorage';
@@ -340,6 +341,22 @@ export const MitraDashboard: React.FC<MitraDashboardProps> = ({
           >
             <CreditCard className="w-4 h-4" />
             <span>ID Card Maker CR80</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              window.location.hash = '#/panduan-agen';
+              window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'panduan-agen' }));
+            }}
+            className="flex-1 min-w-[160px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-300 hover:from-amber-300 hover:to-yellow-300 text-amber-950 border border-amber-400 transition-all cursor-pointer shadow-xs"
+            title="Buka Portal Sertifikasi & Panduan Agen MT"
+          >
+            <GraduationCap className="w-4 h-4 text-amber-800" />
+            <span>Panduan Agen ( MT )</span>
+            <span className="text-[10px] bg-amber-500 text-slate-950 px-1.5 py-0.2 rounded font-black">
+              Ujian 80%
+            </span>
           </button>
         </div>
 
