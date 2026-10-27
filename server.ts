@@ -37,6 +37,7 @@ import {
   toggleBlockMitraBackend,
   updateMitraProfileBackend,
   deleteMitraBackend,
+  loginMitraBackend,
 } from './server_mitra';
 
 dotenv.config();
@@ -799,6 +800,20 @@ Apakah ada bidang usaha atau produk tertentu yang ingin Anda buatkan landing pag
       res.json({ success });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 8. Login mitra
+  app.post('/api/mitra/login', (req: Request, res: Response) => {
+    try {
+      const { identifier, password } = req.body;
+      if (!identifier) {
+        return res.status(400).json({ success: false, message: 'Email atau nomor WhatsApp wajib diisi.' });
+      }
+      const result = loginMitraBackend(identifier, password);
+      res.status(result.success ? 200 : 400).json(result);
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message || 'Gagal login mitra' });
     }
   });
 

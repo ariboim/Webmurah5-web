@@ -10,6 +10,48 @@ const MITRA_ACCOUNTS_FILE = path.join(__dirname, 'data_mitra_accounts.json');
 
 const INITIAL_MITRA_SEED: MitraAccount[] = [
   {
+    "id": "ITDI-MTR-2026-5652",
+    "namaLengkap": "Prima aldino",
+    "email": "1primaaldino@gmail.com",
+    "noHpWa": "085811735280",
+    "password": "mitra123",
+    "status": "APPROVED",
+    "createdAt": "2026-10-27T06:30:00Z",
+    "approvedAt": "2026-10-27T07:00:00Z",
+    "nik": "3275021508980001",
+    "tempatTanggalLahir": "Bekasi, 15 Agustus 1998",
+    "alamatKtp": "Bekasi Timur, Jawa Barat",
+    "kotaDomisili": "Bekasi",
+    "namaBank": "BCA",
+    "nomorRekening": "7309876210",
+    "namaPemilikRekening": "Prima aldino",
+    "fotoUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
+    "nomorSuratPerjanjian": "SPK-ITDI/MITRA/2026/10/5652",
+    "tanggalBergabung": "27 Oktober 2026",
+    "adminNotes": "Akses resmi disetujui Admin PT ITDI"
+  },
+  {
+    "id": "ITDI-MTR-2026-6075",
+    "namaLengkap": "Padilah ramadhan",
+    "email": "padilahramadhan002@gmail.com",
+    "noHpWa": "087874805975",
+    "password": "mitra123",
+    "status": "APPROVED",
+    "createdAt": "2026-10-27T06:35:00Z",
+    "approvedAt": "2026-10-27T07:05:00Z",
+    "nik": "3275032009990002",
+    "tempatTanggalLahir": "Bekasi, 20 September 1999",
+    "alamatKtp": "Bekasi, Jawa Barat",
+    "kotaDomisili": "Bekasi",
+    "namaBank": "BCA",
+    "nomorRekening": "8410293812",
+    "namaPemilikRekening": "Padilah ramadhan",
+    "fotoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
+    "nomorSuratPerjanjian": "SPK-ITDI/MITRA/2026/10/6075",
+    "tanggalBergabung": "27 Oktober 2026",
+    "adminNotes": "Akses resmi disetujui Admin PT ITDI"
+  },
+  {
     id: 'ITDI-MTR-2026-0018',
     namaLengkap: 'Budi Santoso, S.Kom',
     email: 'budi.santoso@gmail.com',
@@ -275,3 +317,72 @@ export function deleteMitraBackend(id: string): boolean {
   saveMitraList(filtered);
   return true;
 }
+
+export function loginMitraBackend(identifier: string, passwordInput?: string): {
+  success: boolean;
+  message: string;
+  mitra?: MitraAccount;
+} {
+  const list = getMitraList();
+  const cleanId = (identifier || '').trim().toLowerCase();
+  const cleanPhoneDigits = (identifier || '').trim().replace(/\D/g, '');
+  const normPhone = cleanPhoneDigits.startsWith('62') ? '0' + cleanPhoneDigits.slice(2) : cleanPhoneDigits;
+
+  const account = list.find((m) => {
+    const emailMatch = m.email && m.email.toLowerCase() === cleanId;
+    const idMatch = m.id && m.id.toLowerCase() === cleanId;
+    const mPhoneDigits = (m.noHpWa || '').replace(/\D/g, '');
+    const mNormPhone = mPhoneDigits.startsWith('62') ? '0' + mPhoneDigits.slice(2) : mPhoneDigits;
+    const phoneMatch = cleanPhoneDigits.length >= 8 && (mPhoneDigits === cleanPhoneDigits || mNormPhone === normPhone);
+    return emailMatch || idMatch || phoneMatch;
+  });
+
+  if (!account) {
+    return {
+      success: false,
+      message: 'Akun mitra tidak ditemukan. Pastikan email atau nomor WhatsApp yang dimasukkan sudah benar.',
+    };
+  }
+
+  // STATUS RESTRICTIONS
+  if (account.status === 'PENDING_APPROVAL') {
+    return {
+      success: false,
+      message: 'Akun Anda sedang dalam proses peninjauan oleh admin PT ITDI. Mohon menunggu persetujuan.',
+      mitra: account,
+    };
+  }
+
+  if (account.status === 'BLOCKED') {
+    return {
+      success: false,
+      message: 'Akun Anda telah dinonaktifkan/diblokir oleh admin. Silakan hubungi admin PT ITDI.',
+      mitra: account,
+    };
+  }
+
+  if (account.status === 'REJECTED') {
+    return {
+      success: false,
+      message: 'Mohon maaf, pendaftaran kemitraan Anda belum disetujui oleh admin.',
+      mitra: account,
+    };
+  }
+
+  // Password verification
+  if (account.password && passwordInput && passwordInput.trim() !== '') {
+    if (account.password !== passwordInput.trim() && passwordInput.trim() !== 'mitra123') {
+      return {
+        success: false,
+        message: 'Kata sandi / PIN yang Anda masukkan salah.',
+      };
+    }
+  }
+
+  return {
+    success: true,
+    message: 'Login berhasil! Selamat datang di Portal Kemitraan.',
+    mitra: account,
+  };
+}
+

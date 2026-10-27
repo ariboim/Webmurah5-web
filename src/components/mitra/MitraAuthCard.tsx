@@ -18,7 +18,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { MitraAccount } from '../../types/mitra';
-import { registerMitra, loginMitra, getAllMitra } from '../../utils/mitraStorage';
+import { registerMitra, loginMitra, loginMitraAsync, getAllMitra } from '../../utils/mitraStorage';
 
 interface MitraAuthCardProps {
   onLoginSuccess: (mitra: MitraAccount) => void;
@@ -42,6 +42,7 @@ export const MitraAuthCard: React.FC<MitraAuthCardProps> = ({
   // Login Form State
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Alerts & Notifications
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -94,7 +95,7 @@ export const MitraAuthCard: React.FC<MitraAuthCardProps> = ({
   };
 
   // Handle Login
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -103,12 +104,19 @@ export const MitraAuthCard: React.FC<MitraAuthCardProps> = ({
       return;
     }
 
-    const res = loginMitra(loginIdentifier, loginPassword);
+    setIsLoggingIn(true);
+    try {
+      const res = await loginMitraAsync(loginIdentifier, loginPassword);
 
-    if (res.success && res.mitra) {
-      onLoginSuccess(res.mitra);
-    } else {
-      setErrorMsg(res.message);
+      if (res.success && res.mitra) {
+        onLoginSuccess(res.mitra);
+      } else {
+        setErrorMsg(res.message);
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Gagal terhubung ke server login. Silakan coba kembali.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -443,10 +451,20 @@ export const MitraAuthCard: React.FC<MitraAuthCardProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-[#1D3582] hover:bg-[#152764] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                disabled={isLoggingIn}
+                className="w-full py-3 rounded-xl bg-[#1D3582] hover:bg-[#152764] disabled:opacity-75 disabled:cursor-wait text-white text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>Masuk ke Dashboard Mitra</span>
-                <ArrowRight className="w-4 h-4" />
+                {isLoggingIn ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Memverifikasi Akun...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Masuk ke Dashboard Mitra</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </form>
           )}
