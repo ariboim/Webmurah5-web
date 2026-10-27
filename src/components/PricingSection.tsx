@@ -508,7 +508,7 @@ export const PricingSection: React.FC = () => {
               rel="noopener noreferrer"
               className="text-amber-400 hover:text-amber-300 font-bold hover:underline flex items-center gap-1.5"
             >
-              <span>Pelajari selengkapnya di https://share.google/87klge8DoF7cqlByM</span>
+              <span>Pelajari disini</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>

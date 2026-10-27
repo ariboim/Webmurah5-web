@@ -1425,14 +1425,14 @@ export const OrderFormSection: React.FC = () => {
                   <li className="flex items-start gap-2 p-2.5 bg-amber-100/90 rounded-xl border border-amber-300">
                     <span className="text-amber-800 font-black shrink-0 text-sm">💡</span>
                     <span className="text-amber-950 font-bold leading-relaxed">
-                      Belum tahu apa itu Web Custom? Pelajari edukasi dan panduan resminya di{' '}
+                      Belum tahu apa itu Web Custom? Pelajari edukasi dan panduan resminya{' '}
                       <a
                         href="https://share.google/87klge8DoF7cqlByM"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline text-blue-800 hover:text-blue-900 inline-flex items-center gap-1 font-black"
                       >
-                        https://share.google/87klge8DoF7cqlByM
+                        pelajari disini
                         <ExternalLink className="w-3 h-3 inline" />
                       </a>
                     </span>
