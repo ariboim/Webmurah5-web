@@ -58,9 +58,8 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
   const [catalogSearch, setCatalogSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Copy states for scripts & direct portal link
+  // Copy states for scripts
   const [copiedScriptId, setCopiedScriptId] = useState<string | null>(null);
-  const [copiedPortalLink, setCopiedPortalLink] = useState(false);
 
   // Accordion open states
   const [openObjectionId, setOpenObjectionId] = useState<string | null>('obj-mahal');
@@ -106,19 +105,6 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
       });
     } else {
       prompt('Salin teks script berikut:', text);
-    }
-  };
-
-  const OFFICIAL_PORTAL_LINK = 'https://webmurah.biz.id/#/panduan-agen';
-
-  const handleCopyPortalLink = () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(OFFICIAL_PORTAL_LINK).then(() => {
-        setCopiedPortalLink(true);
-        setTimeout(() => setCopiedPortalLink(false), 2500);
-      });
-    } else {
-      prompt('Salin link direct portal agen berikut:', OFFICIAL_PORTAL_LINK);
     }
   };
 
@@ -184,55 +170,6 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
                 <span className="text-blue-200 block text-[11px]">Sertifikasi</span>
                 <span className="text-lg font-black text-sky-300">E-Sertifikat Resmi</span>
-              </div>
-            </div>
-
-            {/* Direct Link Share Bar (webmurah.biz.id) */}
-            <div className="mt-4 pt-4 border-t border-blue-400/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-black/20 backdrop-blur-sm rounded-2xl p-3.5 border border-white/10">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-amber-400/20 text-amber-300 shrink-0">
-                  <ExternalLink className="w-4 h-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[11px] text-blue-200 font-semibold uppercase tracking-wider">Direct Link Portal Agen (Siap Dibagikan):</p>
-                  <code className="text-xs sm:text-sm font-mono font-bold text-amber-300 truncate block">
-                    https://webmurah.biz.id/#/panduan-agen
-                  </code>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={handleCopyPortalLink}
-                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${
-                    copiedPortalLink
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-white text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  {copiedPortalLink ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-white" />
-                      <span>Link Tersalin!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5 text-slate-700" />
-                      <span>Salin Link</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const shareText = `Halo Rekan Mitra & Calon Agen! 👋\n\nSilakan akses langsung Portal Edukasi & Ujian Sertifikasi Agen Indo Digital di tautan resmi berikut:\n👉 https://webmurah.biz.id/#/panduan-agen\n\nPelajari katalog produk, script penjualan, dan ikuti kuis 15 soal untuk klaim E-Sertifikat resmi!`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-                  }}
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>Kirim WA</span>
-                </button>
               </div>
             </div>
           </div>
