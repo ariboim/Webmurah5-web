@@ -15,6 +15,7 @@ import {
   Briefcase,
   X,
   FileCheck,
+  MessageCircle,
 } from 'lucide-react';
 import { MitraAccount } from '../../types/mitra';
 import { registerMitra, loginMitra, getAllMitra } from '../../utils/mitraStorage';
@@ -157,6 +158,25 @@ export const MitraAuthCard: React.FC<MitraAuthCardProps> = ({
             </p>
 
             <div className="pt-2 flex flex-col gap-2">
+              <a
+                href={`https://wa.me/6289673686625?text=${encodeURIComponent(
+                  `*KONFIRMASI PENDAFTARAN MITRA MANDIRI - PT ITDI*\n\n` +
+                  `ID Registrasi: ${registeredMitra.id}\n` +
+                  `Nama Lengkap: ${registeredMitra.namaLengkap}\n` +
+                  `Email: ${registeredMitra.email}\n` +
+                  `No. WhatsApp: ${registeredMitra.noHpWa}\n` +
+                  `Kota Domisili: ${registeredMitra.kotaDomisili || '-'}\n` +
+                  `Status: PENDING_APPROVAL\n\n` +
+                  `Halo Admin Webmurah / PT ITDI, saya telah berhasil mengirim formulir pendaftaran kemitraan di website. Mohon konfirmasi dan verifikasi (approval) akun saya di Panel Admin agar saya dapat segera login ke Portal Mitra. Terima kasih!`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Konfirmasi ke WhatsApp Admin Sekarang</span>
+              </a>
+
               <button
                 type="button"
                 onClick={() => {

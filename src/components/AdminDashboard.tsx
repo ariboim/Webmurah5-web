@@ -129,6 +129,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   useEffect(() => {
     refreshMitraStats();
+    const handleMitraUpdated = () => refreshMitraStats();
+    window.addEventListener('mitra-updated', handleMitraUpdated);
+    return () => window.removeEventListener('mitra-updated', handleMitraUpdated);
   }, [activeTab]);
 
   // Articles State

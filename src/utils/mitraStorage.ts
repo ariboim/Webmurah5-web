@@ -67,18 +67,61 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
   },
 ];
 
+let isSyncing = false;
+
+/**
+ * Merge two lists of mitra accounts, prioritizing newer or non-seed entries.
+ */
+function mergeMitraLists(primary: MitraAccount[], secondary: MitraAccount[]): MitraAccount[] {
+  const map = new Map<string, MitraAccount>();
+
+  // Add primary list first
+  for (const item of primary) {
+    if (item && item.id) {
+      map.set(item.id, item);
+    }
+  }
+
+  // Merge secondary list
+  for (const item of secondary) {
+    if (!item || !item.id) continue;
+    if (!map.has(item.id)) {
+      map.set(item.id, item);
+    } else {
+      // If already present, merge fields keeping newer approvedAt or status updates
+      const existing = map.get(item.id)!;
+      map.set(item.id, {
+        ...existing,
+        ...item,
+        status: item.status || existing.status,
+      });
+    }
+  }
+
+  return Array.from(map.values());
+}
+
 export function getAllMitra(): MitraAccount[] {
   try {
     const raw = localStorage.getItem(MITRA_ACCOUNTS_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(MITRA_ACCOUNTS_STORAGE_KEY, JSON.stringify(INITIAL_MITRA_SEED));
+      // Background sync with central database
+      syncMitraFromServer().catch(() => {});
       return INITIAL_MITRA_SEED;
     }
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) {
       localStorage.setItem(MITRA_ACCOUNTS_STORAGE_KEY, JSON.stringify(INITIAL_MITRA_SEED));
+      syncMitraFromServer().catch(() => {});
       return INITIAL_MITRA_SEED;
     }
+
+    // Trigger non-blocking background sync if not currently syncing
+    if (!isSyncing) {
+      syncMitraFromServer().catch(() => {});
+    }
+
     return parsed;
   } catch (err) {
     console.error('Failed to get mitra accounts:', err);
@@ -89,9 +132,68 @@ export function getAllMitra(): MitraAccount[] {
 export function saveAllMitra(list: MitraAccount[]): void {
   try {
     localStorage.setItem(MITRA_ACCOUNTS_STORAGE_KEY, JSON.stringify(list));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('mitra-updated', { detail: list }));
+    }
   } catch (err) {
     console.error('Failed to save mitra accounts:', err);
   }
+}
+
+/**
+ * Synchronize mitra accounts between Central Database API and browser localStorage.
+ */
+export async function syncMitraFromServer(): Promise<MitraAccount[]> {
+  if (isSyncing) return getAllMitra();
+  isSyncing = true;
+
+  try {
+    const response = await fetch('/api/mitra/list', {
+      headers: { Accept: 'application/json' },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Array.isArray(data.mitra)) {
+        const localList = (() => {
+          try {
+            const raw = localStorage.getItem(MITRA_ACCOUNTS_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : INITIAL_MITRA_SEED;
+          } catch {
+            return INITIAL_MITRA_SEED;
+          }
+        })();
+
+        // Merge server and local lists (Server is master, local new ones added)
+        const merged = mergeMitraLists(data.mitra, localList);
+        localStorage.setItem(MITRA_ACCOUNTS_STORAGE_KEY, JSON.stringify(merged));
+
+        // If local had new items not yet on server, push them to server in background
+        const serverIds = new Set(data.mitra.map((m: MitraAccount) => m.id));
+        for (const localItem of localList) {
+          if (!serverIds.has(localItem.id)) {
+            fetch('/api/mitra/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(localItem),
+            }).catch(() => {});
+          }
+        }
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('mitra-updated', { detail: merged }));
+        }
+
+        return merged;
+      }
+    }
+  } catch (err) {
+    // Backend API might be unreachable (offline/client-only), fallback to local storage
+  } finally {
+    isSyncing = false;
+  }
+
+  return getAllMitra();
 }
 
 export function generateMitraId(): string {
@@ -101,6 +203,7 @@ export function generateMitraId(): string {
 }
 
 export interface RegisterMitraPayload {
+  id?: string;
   namaLengkap: string;
   email: string;
   noHpWa: string;
@@ -112,6 +215,8 @@ export interface RegisterMitraPayload {
   nik?: string;
   tempatTanggalLahir?: string;
   alamatKtp?: string;
+  status?: MitraStatus;
+  adminNotes?: string;
 }
 
 export function registerMitra(payload: RegisterMitraPayload): { success: boolean; message: string; mitra?: MitraAccount } {
@@ -123,8 +228,8 @@ export function registerMitra(payload: RegisterMitraPayload): { success: boolean
 
   const duplicate = currentList.find(
     (m) =>
-      m.email.toLowerCase() === cleanEmail ||
-      m.noHpWa.replace(/\D/g, '') === cleanPhone
+      (cleanEmail && m.email.toLowerCase() === cleanEmail) ||
+      (cleanPhone && m.noHpWa.replace(/\D/g, '') === cleanPhone)
   );
 
   if (duplicate) {
@@ -132,17 +237,20 @@ export function registerMitra(payload: RegisterMitraPayload): { success: boolean
       return {
         success: false,
         message: 'Email atau nomor WhatsApp ini sudah terdaftar dan saat ini sedang menunggu persetujuan admin.',
+        mitra: duplicate,
       };
     }
     if (duplicate.status === 'BLOCKED') {
       return {
         success: false,
         message: 'Akun ini telah dinonaktifkan/diblokir oleh admin.',
+        mitra: duplicate,
       };
     }
     return {
       success: false,
       message: 'Email atau nomor WhatsApp ini telah terdaftar sebagai mitra. Silakan login pada portal mitra.',
+      mitra: duplicate,
     };
   }
 
@@ -155,13 +263,14 @@ export function registerMitra(payload: RegisterMitraPayload): { success: boolean
   const randomCode = Math.floor(1000 + Math.random() * 9000);
 
   const newMitra: MitraAccount = {
-    id: generateMitraId(),
+    id: payload.id || generateMitraId(),
     namaLengkap: payload.namaLengkap.trim(),
     email: cleanEmail,
     noHpWa: payload.noHpWa.trim(),
     password: payload.password?.trim() || 'mitra123',
-    status: 'PENDING_APPROVAL',
+    status: payload.status || 'PENDING_APPROVAL',
     createdAt: new Date().toISOString(),
+    approvedAt: payload.status === 'APPROVED' ? new Date().toISOString() : undefined,
     nik: payload.nik || '',
     tempatTanggalLahir: payload.tempatTanggalLahir || '',
     alamatKtp: payload.alamatKtp || '',
@@ -171,14 +280,26 @@ export function registerMitra(payload: RegisterMitraPayload): { success: boolean
     namaPemilikRekening: payload.namaPemilikRekening || payload.namaLengkap.trim(),
     nomorSuratPerjanjian: `SPK-ITDI/MITRA/${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${randomCode}`,
     tanggalBergabung: dateFormatted,
+    adminNotes: payload.adminNotes,
   };
 
   const updatedList = [newMitra, ...currentList];
   saveAllMitra(updatedList);
 
+  // Asynchronously send to Central Server Database API
+  fetch('/api/mitra/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newMitra),
+  }).catch((err) => {
+    console.warn('Backend sync notice (saved locally):', err);
+  });
+
   return {
     success: true,
-    message: 'Anda telah terdaftar. Mohon menunggu persetujuan admin.',
+    message: payload.status === 'APPROVED' 
+      ? 'Data mitra berhasil ditambahkan dengan status Aktif (APPROVED).' 
+      : 'Pendaftaran kemitraan Anda berhasil terkirim. Mohon menunggu persetujuan admin.',
     mitra: newMitra,
   };
 }
@@ -265,6 +386,13 @@ export function approveMitra(id: string): boolean {
 
   saveAllMitra(list);
 
+  // Sync to backend API
+  fetch('/api/mitra/approve', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  }).catch(() => {});
+
   // If currently active session is this user, update session
   const currentSession = getCurrentMitraSession();
   if (currentSession && currentSession.id === id) {
@@ -287,6 +415,14 @@ export function rejectMitra(id: string, reason?: string): boolean {
   };
 
   saveAllMitra(list);
+
+  // Sync to backend API
+  fetch('/api/mitra/reject', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, reason }),
+  }).catch(() => {});
+
   return true;
 }
 
@@ -305,6 +441,13 @@ export function toggleBlockMitra(id: string): { newStatus: MitraStatus; success:
   };
 
   saveAllMitra(list);
+
+  // Sync to backend API
+  fetch('/api/mitra/toggle-block', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  }).catch(() => {});
 
   // If blocked user is currently logged in, sync or logout
   const currentSession = getCurrentMitraSession();
@@ -331,6 +474,13 @@ export function updateMitraProfile(id: string, updates: Partial<MitraAccount>): 
 
   saveAllMitra(list);
 
+  // Sync to backend API
+  fetch('/api/mitra/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, updates }),
+  }).catch(() => {});
+
   const currentSession = getCurrentMitraSession();
   if (currentSession && currentSession.id === id) {
     setCurrentMitraSession(list[idx]);
@@ -345,6 +495,11 @@ export function deleteMitra(id: string): boolean {
   if (filtered.length === list.length) return false;
 
   saveAllMitra(filtered);
+
+  // Sync to backend API
+  fetch(`/api/mitra/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  }).catch(() => {});
 
   const currentSession = getCurrentMitraSession();
   if (currentSession && currentSession.id === id) {

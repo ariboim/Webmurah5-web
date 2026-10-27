@@ -29,6 +29,15 @@ import {
   calculateNextScheduledSlot,
   QueuedArticle,
 } from './server_article_scheduler';
+import {
+  getMitraList,
+  registerMitraBackend,
+  approveMitraBackend,
+  rejectMitraBackend,
+  toggleBlockMitraBackend,
+  updateMitraProfileBackend,
+  deleteMitraBackend,
+} from './server_mitra';
 
 dotenv.config();
 
@@ -668,6 +677,130 @@ Apakah ada bidang usaha atau produk tertentu yang ingin Anda buatkan landing pag
       console.error('[Auto-Scheduler] Worker error:', err);
     }
   }, 30000);
+
+  // ================= MITRA MANDIRI (NON-PKWT) BACKEND APIS =================
+  // 1. Get all mitra accounts
+  app.get('/api/mitra/list', (_req: Request, res: Response) => {
+    try {
+      const list = getMitraList();
+      res.json({
+        success: true,
+        count: list.length,
+        pendingCount: list.filter((m) => m.status === 'PENDING_APPROVAL').length,
+        approvedCount: list.filter((m) => m.status === 'APPROVED').length,
+        mitra: list,
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Gagal memuat data mitra' });
+    }
+  });
+
+  // 2. Register new mitra
+  app.post('/api/mitra/register', (req: Request, res: Response) => {
+    try {
+      const {
+        namaLengkap,
+        email,
+        noHpWa,
+        password,
+        kotaDomisili,
+        namaBank,
+        nomorRekening,
+        namaPemilikRekening,
+        nik,
+        tempatTanggalLahir,
+        alamatKtp,
+        status,
+        adminNotes,
+      } = req.body;
+
+      if (!namaLengkap || !email || !noHpWa) {
+        return res.status(400).json({
+          error: 'Nama lengkap, email, dan nomor WhatsApp wajib diisi.',
+        });
+      }
+
+      const result = registerMitraBackend({
+        namaLengkap,
+        email,
+        noHpWa,
+        password,
+        kotaDomisili,
+        namaBank,
+        nomorRekening,
+        namaPemilikRekening,
+        nik,
+        tempatTanggalLahir,
+        alamatKtp,
+        status,
+        adminNotes,
+      });
+
+      res.status(result.success ? 200 : 400).json(result);
+    } catch (err: any) {
+      console.error('Register mitra backend error:', err);
+      res.status(500).json({ error: err.message || 'Gagal mendaftarkan mitra' });
+    }
+  });
+
+  // 3. Approve mitra
+  app.post('/api/mitra/approve', (req: Request, res: Response) => {
+    try {
+      const { id } = req.body;
+      if (!id) return res.status(400).json({ error: 'ID mitra wajib disertakan.' });
+      const result = approveMitraBackend(id);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 4. Reject mitra
+  app.post('/api/mitra/reject', (req: Request, res: Response) => {
+    try {
+      const { id, reason } = req.body;
+      if (!id) return res.status(400).json({ error: 'ID mitra wajib disertakan.' });
+      const result = rejectMitraBackend(id, reason);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 5. Toggle block mitra
+  app.post('/api/mitra/toggle-block', (req: Request, res: Response) => {
+    try {
+      const { id } = req.body;
+      if (!id) return res.status(400).json({ error: 'ID mitra wajib disertakan.' });
+      const result = toggleBlockMitraBackend(id);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 6. Update profile
+  app.post('/api/mitra/update', (req: Request, res: Response) => {
+    try {
+      const { id, updates } = req.body;
+      if (!id) return res.status(400).json({ error: 'ID mitra wajib disertakan.' });
+      const result = updateMitraProfileBackend(id, updates || {});
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 7. Delete mitra
+  app.delete('/api/mitra/:id', (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const success = deleteMitraBackend(id);
+      res.json({ success });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
   // Health check
   app.get('/api/health', (_req: Request, res: Response) => {
