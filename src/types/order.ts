@@ -1,7 +1,7 @@
 export interface OrderFormData {
   namaSalesKonsultan: string;
   // Pilihan Paket
-  pilihanPaket?: 'umkm' | 'elite';
+  pilihanPaket?: 'umkm' | 'elite' | 'enterprise';
   // 1. Data Klien
   namaLengkap: string;
   nomorWa: string;
@@ -42,6 +42,7 @@ export function formatOrderToWhatsApp(
   partner?: PartnerAttribution | null
 ): string {
   const isPromo = isPromoActiveOverride ?? data.isPromoActive ?? false;
+  const isEnterprise = data.pilihanPaket === 'enterprise';
   const isElite = data.pilihanPaket === 'elite';
   const tujuanList = [...data.tujuanLandingPage];
   if (data.tujuanLainnya.trim()) {
@@ -53,13 +54,17 @@ export function formatOrderToWhatsApp(
     ctaList.push(`Lainnya: ${data.ctaLainnya.trim()}`);
   }
 
-  const paketText = isElite
+  const paketText = isEnterprise
+    ? `Paket: PAKET ENTERPRISE (Web Marketplace / Portal Niaga - Rp 5.000.000)`
+    : isElite
     ? `Paket: PAKET ELITE (Web Custom - Sampai 7 Halaman)`
     : isPromo
     ? `Paket: PAKET UMKM - PROMO DISKON 50% (Rp 499.000 -> Rp 249.500)`
     : `Paket: PAKET UMKM FLASH SALE (Rp 1.8 Juta -> Rp 499.000)`;
 
-  const statusText = isElite
+  const statusText = isEnterprise
+    ? `Status: HARGA NET WAJIB DP 50% (Rp 2.500.000)\nTotal Tagihan: Rp 5.000.000 (Pelunasan Rp 2.500.000 Setelah Selesai)`
+    : isElite
     ? `Status: HARGA NET TETAP (Promo Banner Tidak Berlaku)\nTotal Tagihan: Rp 3.000.000`
     : isPromo
     ? `Status Promo: YA (KLAIM PROMO DISKON 50% BANNER)\nTotal Tagihan: Rp 249.500`
@@ -108,7 +113,40 @@ export function formatOrderToWhatsApp(
     `• *Call to Action (CTA) Diinginkan:*`,
     ...(ctaList.length > 0 ? ctaList.map(c => `   - ${c}`) : [`   - (Belum ditentukan)`]),
     ``,
-    isElite
+    isEnterprise
+      ? `*4. SYARAT & KETENTUAN PAKET ENTERPRISE (RP 5.000.000):*
+• Skema Pembayaran: Wajib DP 50% (Rp 2.500.000) saat pemesanan, pelunasan sisa 50% (Rp 2.500.000) setelah web selesai & disetujui.
+• Waktu Pengerjaan: 15 - 30 hari kerja.
+• Model Contoh Web: Marketplace / Portal Niaga / Jual Beli Multi-Vendor (seperti Shopee, Lazada, Tokopedia, OLX, dsb).
+• Fitur & Fasilitas Lengkap:
+  - 15-20 Menu navigasi & katalog interaktif
+  - Gratis Domain .com, .id, .co.id resmi
+  - Hosting 5 GB (120 foto kuota kerja produk)
+  - Free Whatsapp / Telepon langsung
+  - Integrasi Media Sosial
+  - Website SSL (Keamanan HTTPS)
+  - Template WP Premium
+  - Perpanjang Setiap Tahun
+  - User dan Video Panduan Edit
+  - Plugin Premium
+  - Free Banner dan Logo
+  - Free 1 Email Bisnis (@namabisnis.com)
+  - Pemasangan Google Map
+  - Respon Server Rata-Rata 5 Mili Detik
+  - Bandwidth Unlimited
+  - Statistic Kunjungan Website
+  - Standar Kontak Form
+  - Free Support
+  - Garansi Selamanya
+  - Integrasi Lapak Media
+• *DISCLAIMER:* Harga belum termasuk pajak (PPN), biaya maintenance berkala, dan biaya revisi di luar kesepakatan awal.
+
+${
+  partner
+    ? `Halo Kak ${partner.namaLengkap} (Konsultan Resmi PT Inovasi Teknologi Digital Indonesia), saya memesan *PAKET ENTERPRISE (Marketplace - Rp 5.000.000)* dengan DP 50% (Rp 2.500.000) melalui Web Replika Anda (${replicaLink}). Mohon segera dipandu untuk briefing teknis & koordinasi pengerjaan ke tim produksi. Terima kasih!`
+    : `Halo Admin PT Indo Digital, saya memesan *PAKET ENTERPRISE (Marketplace - Rp 5.000.000)* dengan komitmen DP 50% (Rp 2.500.000) & estimasi pengerjaan 15-30 hari kerja. Mohon panduan untuk briefing materi & rekening pembayaran DP resmi. Terima kasih!`
+}`
+      : isElite
       ? `*4. SYARAT & KETENTUAN PAKET ELITE:*
 • Skema Pembayaran: Wajib DP 50% (Rp 1.500.000) di awal, sisanya (Rp 1.500.000) setelah pengerjaan selesai & disetujui.
 • Waktu Pengerjaan: 5 - 7 hari kerja.

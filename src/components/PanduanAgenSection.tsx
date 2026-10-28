@@ -258,29 +258,36 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                   Paket Jasa Pembuatan Website Profesional
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 mt-1">
-                  Dua pilihan paket strategis: Paket UMKM untuk penetrasi pasar masal dan Paket Elite untuk korporat/agensi.
+                  Tiga pilihan paket strategis: Paket UMKM (Rp 249rb kilat 24 jam), Paket Elite (Rp 3 Juta web custom), dan Paket Enterprise (Rp 5 Juta web marketplace/portal niaga).
                 </p>
               </div>
 
-              {/* Grid 2 Kartu Paket Website */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              {/* Grid 3 Kartu Paket Website (UMKM, Elite, Enterprise) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                 {WEBSITE_PACKAGES.map((pkg) => {
                   const isUmkm = pkg.id === 'umkm';
+                  const isEnterprise = pkg.id === 'enterprise';
+                  const isElite = pkg.id === 'elite';
+
                   return (
                     <div
                       key={pkg.id}
-                      className={`rounded-3xl border p-6 sm:p-8 flex flex-col justify-between transition-all ${
+                      className={`rounded-3xl border p-6 sm:p-7 flex flex-col justify-between transition-all ${
                         isUmkm
                           ? 'bg-white border-sky-300 shadow-lg ring-1 ring-sky-200'
+                          : isEnterprise
+                          ? 'bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 text-white border-indigo-400 shadow-2xl ring-2 ring-indigo-400/30'
                           : 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white border-amber-400 shadow-xl ring-2 ring-amber-400/20'
                       }`}
                     >
-                      <div className="space-y-5">
-                        <div className="flex items-center justify-between gap-2">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
                           <span
                             className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full ${
                               isUmkm
                                 ? 'bg-sky-100 text-sky-800 border border-sky-200'
+                                : isEnterprise
+                                ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-400/50'
                                 : 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
                             }`}
                           >
@@ -290,6 +297,8 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                             className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md ${
                               isUmkm
                                 ? 'bg-emerald-100 text-emerald-800'
+                                : isEnterprise
+                                ? 'bg-indigo-900/80 text-indigo-200 border border-indigo-700'
                                 : 'bg-slate-800 text-amber-300 border border-slate-700'
                             }`}
                           >
@@ -299,14 +308,14 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
 
                         <div>
                           <h3
-                            className={`text-2xl font-black ${
-                              isUmkm ? 'text-slate-900' : 'text-white'
+                            className={`text-xl sm:text-2xl font-black ${
+                              isUmkm ? 'text-slate-900' : isEnterprise ? 'text-indigo-200' : 'text-white'
                             }`}
                           >
                             {pkg.name}
                           </h3>
                           <p
-                            className={`text-xs sm:text-sm mt-1 font-medium ${
+                            className={`text-xs mt-1 font-medium ${
                               isUmkm ? 'text-slate-600' : 'text-slate-300'
                             }`}
                           >
@@ -319,6 +328,8 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                           className={`p-4 rounded-2xl border ${
                             isUmkm
                               ? 'bg-sky-50/70 border-sky-200'
+                              : isEnterprise
+                              ? 'bg-slate-900/90 border-indigo-500/40'
                               : 'bg-slate-800/80 border-amber-400/30'
                           }`}
                         >
@@ -328,11 +339,11 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                                 isUmkm ? 'text-slate-500' : 'text-slate-400'
                               }`}
                             >
-                              Harga Promo:
+                              Investasi:
                             </span>
                             <span
-                              className={`text-3xl font-black ${
-                                isUmkm ? 'text-[#1D3582]' : 'text-amber-400'
+                              className={`text-2xl sm:text-3xl font-black ${
+                                isUmkm ? 'text-[#1D3582]' : isEnterprise ? 'text-indigo-400' : 'text-amber-400'
                               }`}
                             >
                               {pkg.promoPrice}
@@ -345,7 +356,7 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                           </div>
                           <p
                             className={`text-xs font-bold mt-1 ${
-                              isUmkm ? 'text-emerald-700' : 'text-amber-200/90'
+                              isUmkm ? 'text-emerald-700' : isEnterprise ? 'text-indigo-300' : 'text-amber-200/90'
                             }`}
                           >
                             ✓ {pkg.paymentTerms}
@@ -363,17 +374,17 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                         <div className="space-y-2">
                           <span
                             className={`text-xs font-black uppercase tracking-wider block ${
-                              isUmkm ? 'text-slate-700' : 'text-amber-300'
+                              isUmkm ? 'text-slate-700' : isEnterprise ? 'text-indigo-300' : 'text-amber-300'
                             }`}
                           >
                             Fitur &amp; Nilai Tambah:
                           </span>
-                          <ul className="space-y-2 text-xs">
+                          <ul className="space-y-2 text-xs max-h-72 overflow-y-auto pr-1">
                             {pkg.features.map((feat, idx) => (
                               <li key={idx} className="flex items-start gap-2">
                                 <CheckCircle2
-                                  className={`w-4 h-4 shrink-0 mt-0.5 ${
-                                    isUmkm ? 'text-emerald-600' : 'text-amber-400'
+                                  className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                                    isUmkm ? 'text-emerald-600' : isEnterprise ? 'text-indigo-400' : 'text-amber-400'
                                   }`}
                                 />
                                 <span className={isUmkm ? 'text-slate-700' : 'text-slate-200'}>
@@ -389,10 +400,12 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                           className={`p-3.5 rounded-xl text-xs leading-relaxed border ${
                             isUmkm
                               ? 'bg-amber-50 text-amber-950 border-amber-200'
+                              : isEnterprise
+                              ? 'bg-slate-950/90 text-indigo-100 border-indigo-900/60'
                               : 'bg-slate-950/80 text-slate-300 border-slate-800'
                           }`}
                         >
-                          <strong className={isUmkm ? 'text-amber-900 block mb-1' : 'text-amber-300 block mb-1'}>
+                          <strong className={isUmkm ? 'text-amber-900 block mb-1' : isEnterprise ? 'text-indigo-300 block mb-1' : 'text-amber-300 block mb-1'}>
                             ⚔️ Keunggulan Komparatif (Vs Kompetitor):
                           </strong>
                           {pkg.comparativeAdvantage}
@@ -400,13 +413,15 @@ export const PanduanAgenSection: React.FC<PanduanAgenSectionProps> = ({
                       </div>
 
                       {/* CTA untuk tes order atau kirim ke klien */}
-                      <div className="pt-6 mt-4 border-t border-slate-200/40">
+                      <div className="pt-5 mt-4 border-t border-slate-200/20">
                         <button
                           type="button"
                           onClick={onNavigateToOrder}
                           className={`w-full py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                             isUmkm
                               ? 'bg-[#1D3582] hover:bg-[#162968] text-white'
+                              : isEnterprise
+                              ? 'bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white'
                               : 'bg-amber-400 hover:bg-amber-300 text-slate-950'
                           }`}
                         >

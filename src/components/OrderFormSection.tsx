@@ -120,15 +120,15 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(true);
 
-  // Pilihan Paket: 'umkm' vs 'elite'
-  const [selectedPackage, setSelectedPackage] = useState<'umkm' | 'elite'>(() => {
+  // Pilihan Paket: 'umkm' vs 'elite' vs 'enterprise'
+  const [selectedPackage, setSelectedPackage] = useState<'umkm' | 'elite' | 'enterprise'>(() => {
     try {
       const stored = sessionStorage.getItem('selected_package');
-      if (stored === 'elite' || stored === 'umkm') return stored;
+      if (stored === 'enterprise' || stored === 'elite' || stored === 'umkm') return stored;
       const saved = localStorage.getItem('webkilat_saved_form');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.pilihanPaket === 'elite' || parsed.pilihanPaket === 'umkm') return parsed.pilihanPaket;
+        if (parsed.pilihanPaket === 'enterprise' || parsed.pilihanPaket === 'elite' || parsed.pilihanPaket === 'umkm') return parsed.pilihanPaket;
       }
       return 'umkm';
     } catch {
@@ -136,7 +136,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
     }
   });
 
-  const handleSelectPackageMode = (pkg: 'umkm' | 'elite') => {
+  const handleSelectPackageMode = (pkg: 'umkm' | 'elite' | 'enterprise') => {
     setSelectedPackage(pkg);
     setFormData((prev) => ({ ...prev, pilihanPaket: pkg }));
     try {
@@ -185,8 +185,8 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
       );
     };
 
-    const handlePackageSelected = (e: CustomEvent<'umkm' | 'elite'>) => {
-      if (e.detail && (e.detail === 'umkm' || e.detail === 'elite')) {
+    const handlePackageSelected = (e: CustomEvent<'umkm' | 'elite' | 'enterprise'>) => {
+      if (e.detail && (e.detail === 'umkm' || e.detail === 'elite' || e.detail === 'enterprise')) {
         setSelectedPackage(e.detail);
         setFormData((prev) => ({ ...prev, pilihanPaket: e.detail }));
       }
@@ -471,12 +471,12 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
 
     setSubmittedSuccess(true);
     setShowSuccessModal(true);
-    const finalPrice = isPromoActive ? 249000 : 499000;
+    const finalPrice = selectedPackage === 'enterprise' ? 5000000 : selectedPackage === 'elite' ? 3000000 : isPromoActive ? 249000 : 499000;
     trackOrderSubmission(formData.namaBisnis, finalPrice);
 
-    // Record referral order attribution for active partner
+    // Record referral order attribution for active partner (60% fee)
     if (activePartner && activePartner.status === 'APPROVED') {
-      const commission = selectedPackage === 'elite' ? 1800000 : 300000;
+      const commission = selectedPackage === 'enterprise' ? 3000000 : selectedPackage === 'elite' ? 1800000 : 300000;
       recordReferralOrder(activePartner.slug, commission);
     }
 
@@ -581,7 +581,9 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
               <span className="inline-block text-[11px] font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 w-fit">
                 Paket Terpilih:{' '}
                 <strong className="text-slate-900 uppercase">
-                  {selectedPackage === 'elite'
+                  {selectedPackage === 'enterprise'
+                    ? 'Paket Enterprise (Rp 5.000.000)'
+                    : selectedPackage === 'elite'
                     ? 'Paket Elite (Rp 3.000.000)'
                     : isPromoActive
                     ? 'Paket UMKM (Diskon Rp 249.500)'
@@ -590,7 +592,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Option 1: Paket UMKM */}
               <div
                 onClick={() => handleSelectPackageMode('umkm')}
@@ -735,6 +737,94 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                     }`}>
                       Rp 3.000.000
                     </span>
+                    <span className="block text-[10px] text-slate-400 font-semibold">DP: Rp 1.500.000</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 3: Paket ENTERPRISE */}
+              <div
+                onClick={() => handleSelectPackageMode('enterprise')}
+                className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                  selectedPackage === 'enterprise'
+                    ? 'border-purple-400 bg-gradient-to-b from-purple-950 via-slate-900 to-indigo-950 text-white shadow-xl ring-2 ring-purple-400'
+                    : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/30'
+                }`}
+              >
+                {selectedPackage === 'enterprise' && (
+                  <span className="absolute top-3.5 right-3.5 w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-xs">
+                    <Check className="w-4 h-4 stroke-[3]" />
+                  </span>
+                )}
+                <div className="space-y-2.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-purple-950 bg-purple-300 px-2 py-0.5 rounded flex items-center gap-1 shadow-xs font-mono">
+                      <Sparkles className="w-3 h-3 text-purple-900" />
+                      15 - 30 Hari Kerja
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-900 bg-white/90 px-2 py-0.5 rounded border border-purple-200">
+                      Wajib DP 50%
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className={`text-base sm:text-lg font-black ${
+                      selectedPackage === 'enterprise' ? 'text-white' : 'text-slate-900'
+                    }`}>
+                      PAKET ENTERPRISE
+                    </h4>
+                    <p className={`text-[11px] font-bold ${
+                      selectedPackage === 'enterprise' ? 'text-purple-300' : 'text-purple-700'
+                    }`}>
+                      Marketplace &amp; Portal Niaga (Shopee, Lazada, Tokopedia, OLX)
+                    </p>
+                  </div>
+                  <p className={`text-xs leading-relaxed font-medium ${
+                    selectedPackage === 'enterprise' ? 'text-slate-300' : 'text-slate-600'
+                  }`}>
+                    Solusi platform marketplace lengkap dengan 15-20 Menu, domain com/id/co.id, hosting 5GB, server 5ms, garansi selamanya, &amp; integrasi lapak media.
+                  </p>
+
+                  <ul className={`text-[11px] space-y-1 pt-1 font-medium ${
+                    selectedPackage === 'enterprise' ? 'text-slate-300' : 'text-slate-600'
+                  }`}>
+                    <li className="flex items-center gap-1.5">
+                      <span className="text-purple-400 font-bold">✓</span> 15-20 Menu &amp; Template WP Premium
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <span className="text-purple-400 font-bold">✓</span> Free Domain (.com/.id/.co.id) &amp; Hosting 5 GB
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <span className="text-purple-400 font-bold">✓</span> Respon Server 5ms &amp; Bandwidth Unlimited
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <span className="text-purple-400 font-bold">✓</span> Garansi Selamanya &amp; Free Support
+                    </li>
+                  </ul>
+
+                  <div className={`p-2 rounded-lg text-[10px] leading-tight border ${
+                    selectedPackage === 'enterprise'
+                      ? 'bg-purple-900/40 border-purple-700/60 text-purple-200'
+                      : 'bg-amber-50 border-amber-200 text-amber-900'
+                  }`}>
+                    * Belum termasuk pajak (PPN) serta biaya maintenance &amp; revisi berkala.
+                  </div>
+                </div>
+
+                <div className={`pt-3 mt-3 border-t flex items-baseline justify-between ${
+                  selectedPackage === 'enterprise' ? 'border-purple-800' : 'border-slate-200/80'
+                }`}>
+                  <span className={`text-xs font-semibold ${
+                    selectedPackage === 'enterprise' ? 'text-purple-300' : 'text-slate-500'
+                  }`}>
+                    Investasi:
+                  </span>
+                  <div className="text-right">
+                    <span className={`text-xl font-black ${
+                      selectedPackage === 'enterprise' ? 'text-purple-300' : 'text-purple-900'
+                    }`}>
+                      Rp 5.000.000
+                    </span>
+                    <span className="block text-[10px] text-slate-400 font-semibold">DP: Rp 2.500.000</span>
                   </div>
                 </div>
               </div>
@@ -1617,7 +1707,9 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
             {/* ========================================================================= */}
             <div
               className={`p-5 sm:p-6 rounded-2xl border-2 transition-all ${
-                selectedPackage === 'elite'
+                selectedPackage === 'enterprise'
+                  ? 'bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 border-purple-400 text-white shadow-xl ring-2 ring-purple-400/40'
+                  : selectedPackage === 'elite'
                   ? 'bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border-amber-400 text-white shadow-xl ring-2 ring-amber-400/30'
                   : isPromoActive
                   ? 'bg-gradient-to-r from-amber-50 via-yellow-50/80 to-emerald-50 border-amber-400 shadow-md ring-2 ring-amber-300/60'
@@ -1628,12 +1720,17 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={`text-xs font-bold uppercase tracking-wider ${
-                      selectedPackage === 'elite' ? 'text-slate-300' : 'text-slate-700'
+                      selectedPackage === 'enterprise' || selectedPackage === 'elite' ? 'text-slate-300' : 'text-slate-700'
                     }`}>
                       Ringkasan Total Tagihan:
                     </span>
 
-                    {selectedPackage === 'elite' ? (
+                    {selectedPackage === 'enterprise' ? (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-[11px] uppercase tracking-wider shadow-xs border border-purple-400">
+                        <Sparkles className="w-3.5 h-3.5 fill-current" />
+                        <span>PAKET ENTERPRISE &bull; WAJIB DP 50% (RP 2.500.000)</span>
+                      </span>
+                    ) : selectedPackage === 'elite' ? (
                       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-[11px] uppercase tracking-wider shadow-xs border border-amber-500">
                         <Crown className="w-3.5 h-3.5 fill-current" />
                         <span>PAKET ELITE &bull; HARGA NET (TIDAK BERLAKU PROMO BANNER)</span>
@@ -1651,7 +1748,19 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                   </div>
 
                   <div className="flex items-baseline gap-3">
-                    {selectedPackage === 'elite' ? (
+                    {selectedPackage === 'enterprise' ? (
+                      <>
+                        <span className="text-3xl sm:text-4xl font-black text-purple-300">
+                          Rp 5.000.000
+                        </span>
+                        <span className="text-xs font-bold text-slate-400">
+                          / marketplace all-in (15 - 20 menu)
+                        </span>
+                        <span className="text-xs font-black text-purple-300 bg-purple-900/60 px-2.5 py-0.5 rounded-md border border-purple-500">
+                          DP 50%: Rp 2.500.000
+                        </span>
+                      </>
+                    ) : selectedPackage === 'elite' ? (
                       <>
                         <span className="text-3xl sm:text-4xl font-black text-amber-400">
                           Rp 3.000.000
@@ -1688,9 +1797,17 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                   </div>
 
                   <p className={`text-xs font-medium ${
-                    selectedPackage === 'elite' ? 'text-slate-300' : 'text-slate-600'
+                    selectedPackage === 'enterprise'
+                      ? 'text-purple-200'
+                      : selectedPackage === 'elite'
+                      ? 'text-slate-300'
+                      : 'text-slate-600'
                   }`}>
-                    {selectedPackage === 'elite' ? (
+                    {selectedPackage === 'enterprise' ? (
+                      <span className="text-purple-200 leading-relaxed block">
+                        ✓ <strong>Paket Enterprise (Rp 5.000.000):</strong> Wajib DP 50% (Rp 2.500.000) saat pemesanan, pelunasan sisa 50% setelah website selesai &amp; disetujui. Estimasi pengerjaan: 15 - 30 hari kerja. Platform marketplace seperti Shopee, Lazada, Tokopedia, OLX. Sudah mencakup 15-20 menu, free domain .com/.id/.co.id, hosting 5GB, server 5ms, garansi selamanya, &amp; integrasi lapak media. <span className="text-amber-300 font-semibold">*Disclaimer: Harga belum termasuk pajak dan biaya maintenance serta revisi.</span>
+                      </span>
+                    ) : selectedPackage === 'elite' ? (
                       <span className="text-amber-200">
                         ✓ Paket Elite (Rp 3.000.000): Wajib DP 50% (Rp 1.500.000) di awal, sisanya dilunasi setelah web selesai &amp; disetujui. Estimasi pengerjaan: 5 - 7 hari kerja. Mencakup sampai 7 halaman custom, PageSpeed 90+, SEO on-page, dan gratis revisi 2x. Promo banner 50% tidak berlaku untuk paket ini.
                       </span>

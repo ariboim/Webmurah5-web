@@ -119,6 +119,46 @@ export const WEBSITE_PACKAGES: WebsitePackage[] = [
     uspPitch:
       'Fondasi digital berwibawa untuk bisnis berkembang yang ingin memenangkan tender, dipercaya calon mitra besar, dan mendominasi kata kunci Google.',
   },
+  {
+    id: 'enterprise',
+    name: 'Paket Enterprise (Marketplace & Portal Niaga)',
+    badge: 'Skala Besar & Marketplace',
+    normalPrice: 'Rp 5.000.000',
+    promoPrice: 'Rp 5.000.000 (Net)',
+    priceNote: 'Wajib DP 50% (Rp 2.500.000) & Pelunasan Setelah Jadi',
+    turnaroundTime: '15 - 30 Hari Kerja',
+    paymentTerms: 'Wajib DP 50% (Rp 2.500.000 saat pemesanan), sisa 50% (Rp 2.500.000) dilunasi setelah web selesai & disetujui',
+    domainHosting: 'Gratis Domain (.com, .id, .co.id) + Hosting 5 GB (120 Foto Kuota Kerja) + Bandwidth Unlimited',
+    pageCount: '15 - 20 Menu / Halaman Interaktif Terintegrasi',
+    features: [
+      '15-20 Menu navigasi & katalog interaktif',
+      'Gratis Domain .com, .id, .co.id resmi 1 tahun',
+      'Hosting 5 GB (120 foto kuota kerja katalog produk)',
+      'Free Whatsapp / Telepon langsung',
+      'Integrasi Media Sosial lengkap',
+      'Website SSL (Sertifikat Keamanan HTTPS)',
+      'Template WP Premium berlisensi',
+      'Perpanjang Setiap Tahun (Sistem terawat)',
+      'User dan Video Panduan Edit mandiri',
+      'Plugin Premium pendukung fungsionalitas niaga',
+      'Free Banner dan Logo bisnis profesional',
+      'Free 1 Email Bisnis profesional (@namabisnis.com)',
+      'Pemasangan Google Map interaktif lokasi usaha',
+      'Respon Server Rata-Rata 5 Mili Detik super cepat',
+      'Bandwidth Unlimited tanpa batasan pengunjung',
+      'Statistic Kunjungan Website (Traffic analytics)',
+      'Standar Kontak Form terenkripsi',
+      'Free Support teknis & pendampingan',
+      'Garansi Selamanya selama berlangganan',
+      'Integrasi Lapak Media',
+      'Contoh model web marketplace / portal niaga (seperti Shopee, Lazada, Tokopedia, OLX, dsb.)',
+      '*DISCLAIMER PENTING:* Harga belum termasuk pajak (PPN), biaya maintenance berkala, dan biaya revisi di luar kesepakatan awal.',
+    ],
+    comparativeAdvantage:
+      'Solusi marketplace dan portal niaga lengkap berskala enterprise setara dengan software house puluhan juta rupiah, dapat dipesan dengan biaya hanya Rp 5 Juta (DP 50% Rp 2.5 Juta). Menghasilkan komisi mitra 60% sebesar Rp 3.000.000 per closing!',
+    uspPitch:
+      'Infrastruktur marketplace & portal niaga tangguh dengan fitur terlengkap (15-20 menu, hosting 5GB, garansi selamanya, server 5ms) untuk mendominasi pasar digital seperti Shopee/Tokopedia/OLX skala mandiri.',
+  },
 ];
 
 // 2. KATALOG PRODUK INDO DIGITAL LAINNYA (DARI https://indo-digital.myr.id)

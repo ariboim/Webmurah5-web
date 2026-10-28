@@ -45,7 +45,7 @@ export interface ReferralLeadRecord {
   mitraName: string;
   clientName: string;
   clientPhone: string;
-  clientPackage: 'umkm' | 'elite';
+  clientPackage: 'umkm' | 'elite' | 'enterprise';
   domainQuery?: string;
   timestamp: string;
   status: 'PENDING' | 'CLOSED_DEAL' | 'CANCELLED';

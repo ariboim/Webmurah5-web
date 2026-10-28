@@ -38,7 +38,7 @@ export const PricingSection: React.FC = () => {
     return () => window.removeEventListener('promo-50-claimed', handlePromoClaimed);
   }, []);
 
-  const handleSelectPackage = (pkg: 'umkm' | 'elite') => {
+  const handleSelectPackage = (pkg: 'umkm' | 'elite' | 'enterprise') => {
     try {
       sessionStorage.setItem('selected_package', pkg);
     } catch {}
@@ -88,9 +88,9 @@ export const PricingSection: React.FC = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 2 PRICING CARDS: SIDE-BY-SIDE ON DESKTOP, VERTICAL ON MOBILE              */}
+        {/* 3 PRICING CARDS: UMKM, ELITE, & ENTERPRISE                                */}
         {/* ========================================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-8 items-stretch max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch max-w-7xl mx-auto">
           
           {/* ===================================================================== */}
           {/* CARD 1: PAKET UMKM (BERLAKU DISKON 50% VIA BANNER PROMO)             */}
@@ -431,6 +431,142 @@ export const PricingSection: React.FC = () => {
                 </button>
                 <p className="text-[11px] text-center text-slate-400 font-medium">
                   ✓ DP 50% di awal, sisa setelah selesai &bull; Waktu pengerjaan 5-7 hari kerja
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* ===================================================================== */}
+          {/* CARD 3: PAKET ENTERPRISE (MARKETPLACE & PORTAL NIAGA) - RP 5.000.000 */}
+          {/* ===================================================================== */}
+          <div className="bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl border-2 border-indigo-400 shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 flex flex-col justify-between overflow-hidden relative ring-4 ring-indigo-400/20 group">
+            
+            {/* Top Badge */}
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white text-center py-2.5 px-4 text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 shadow-md">
+              <Sparkles className="w-4 h-4 text-yellow-300 fill-current" />
+              <span>★ ENTERPRISE &bull; MARKETPLACE &amp; PORTAL NIAGA ★</span>
+            </div>
+
+            <div className="p-6 sm:p-7 space-y-5 flex-1 flex flex-col justify-between">
+              
+              <div className="space-y-4">
+                {/* Package Title & Description */}
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-indigo-300 bg-indigo-500/20 px-2.5 py-1 rounded-md border border-indigo-400/30">
+                      Marketplace &bull; 15-20 Menu
+                    </span>
+                    <span className="text-[11px] font-black uppercase tracking-wider text-purple-300 bg-purple-400/20 px-2.5 py-0.5 rounded-full border border-purple-400/40">
+                      Mega Platform
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-black text-white mt-2 flex items-center gap-2">
+                    <span>PAKET ENTERPRISE</span>
+                  </h3>
+                  <p className="text-xs text-slate-300 font-medium mt-1 leading-relaxed">
+                    Solusi website marketplace, portal niaga, &amp; katalog multi-produk skala besar. Contoh model web seperti <strong>Shopee, Lazada, Tokopedia, OLX</strong>, dsb.
+                  </p>
+                </div>
+
+                {/* Price Display with Net Notice */}
+                <div className="p-4 bg-slate-800/80 rounded-2xl border border-indigo-400/40 space-y-2 backdrop-blur-xs">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+                    <span>Harga Investasi:</span>
+                    <span className="text-indigo-300 font-semibold">Platform Marketplace</span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-sm font-black text-indigo-400">Rp</span>
+                    <span className="text-4xl font-black text-white tracking-tight">
+                      5.000.000
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">/ project</span>
+                  </div>
+
+                  {/* Net Price Label */}
+                  <div className="pt-2 border-t border-slate-700/80 flex items-center justify-between text-xs text-indigo-200 font-medium">
+                    <span className="flex items-center gap-1.5 font-bold text-indigo-300">
+                      <Lock className="w-3.5 h-3.5 text-indigo-400" />
+                      Harga Net / Skala Enterprise
+                    </span>
+                    <span className="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-700">
+                      Fixed Net
+                    </span>
+                  </div>
+
+                  {/* Wajib DP 50% & Pengerjaan 15-30 Hari Kerja Highlight */}
+                  <div className="pt-2 border-t border-slate-700/80 grid grid-cols-1 gap-2 text-[11.5px]">
+                    <div className="bg-slate-900/90 px-3 py-2 rounded-xl border border-indigo-400/30 flex items-center gap-2 text-indigo-200">
+                      <CreditCard className="w-4 h-4 text-indigo-400 shrink-0" />
+                      <span><strong>Wajib DP 50%</strong> (Rp 2.500.000 saat pemesanan), sisa pelunasan setelah jadi</span>
+                    </div>
+                    <div className="bg-slate-900/90 px-3 py-2 rounded-xl border border-indigo-400/30 flex items-center gap-2 text-indigo-200">
+                      <Calendar className="w-4 h-4 text-indigo-400 shrink-0" />
+                      <span>Waktu Pengerjaan: <strong>15 - 30 Hari Kerja</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* All 20 Features exactly matching user's photo */}
+                <div className="space-y-2 pt-1">
+                  <span className="text-xs font-black uppercase tracking-wider text-indigo-300 block">
+                    Detail Fitur Paket Enterprise:
+                  </span>
+                  <div className="bg-slate-950/70 p-3 rounded-2xl border border-indigo-950 space-y-1.5 text-xs text-slate-200 max-h-64 overflow-y-auto pr-1">
+                    {[
+                      '15-20 Menu',
+                      'Gratis Domain com, id, co.id',
+                      'Hosting 5 GB (120 foto kuota kerja)',
+                      'Free Whatsapp/Telepon',
+                      'Integrasi Media Sosial',
+                      'Website SSL',
+                      'Template WP Premium',
+                      'Perpanjang Setiap Tahun',
+                      'User dan Video Panduan Edit',
+                      'Plugin Premium',
+                      'Free Banner dan Logo',
+                      'Free 1 Email Bisnis',
+                      'Pemasangan Google Map',
+                      'Respon Server Rata-Rata 5 Mili Detik',
+                      'Bandwidth Unlimited',
+                      'Statistic Kunjungan Website',
+                      'Standar Kontak Form',
+                      'Free Support',
+                      'Garansi Selamanya',
+                      'Integrasi Lapak Media',
+                    ].map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-2 py-0.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                        <span className="text-slate-300 text-[11.5px]">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Important Disclaimer matching prompt instruction */}
+                <div className="p-3 bg-amber-500/10 border border-amber-400/40 rounded-xl text-[11px] text-amber-200 leading-relaxed">
+                  <strong className="text-amber-300 uppercase block font-black text-[10px] mb-0.5">
+                    ⚠️ Disclaimer Penting:
+                  </strong>
+                  Harga belum termasuk pajak (PPN), biaya maintenance berkala, dan biaya revisi di luar kesepakatan awal.
+                </div>
+
+              </div>
+
+              {/* Order Button */}
+              <div className="pt-4 border-t border-slate-800 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleSelectPackage('enterprise')}
+                  className="w-full py-4 px-6 rounded-2xl font-black text-sm tracking-wide uppercase transition-all duration-200 shadow-xl flex items-center justify-center gap-2 cursor-pointer bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-600 hover:from-indigo-600 hover:to-purple-700 text-white hover:scale-101 active:scale-98"
+                >
+                  <Sparkles className="w-4 h-4 fill-white" />
+                  <span>Pilih Paket Enterprise (Rp 5 Jt)</span>
+                  <ArrowRight className="w-4 h-4 stroke-[3]" />
+                </button>
+                <p className="text-[11px] text-center text-slate-400 font-medium">
+                  ✓ Wajib DP 50% di awal &bull; Pengerjaan 15-30 hari kerja
                 </p>
               </div>
 

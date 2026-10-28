@@ -25,7 +25,7 @@ interface OrderSuccessAnimationProps {
   onClose: () => void;
   formData: OrderFormData;
   isPromoActive: boolean;
-  selectedPackage: 'umkm' | 'elite';
+  selectedPackage: 'umkm' | 'elite' | 'enterprise';
   orderCode?: string;
   partner?: MitraAccount | null;
 }
@@ -151,14 +151,18 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
   };
 
   const finalPriceLabel =
-    selectedPackage === 'elite'
+    selectedPackage === 'enterprise'
+      ? 'Rp 5.000.000 (DP 50% Rp 2.500.000)'
+      : selectedPackage === 'elite'
       ? 'Rp 3.000.000 (DP 50% Rp 1.500.000)'
       : isPromoActive
-      ? 'Rp 249.000 (Promo Terkunci)'
+      ? 'Rp 249.500 (Promo Terkunci)'
       : 'Rp 499.000 (Bayar Setelah Jadi)';
 
   const packageName =
-    selectedPackage === 'elite'
+    selectedPackage === 'enterprise'
+      ? 'Paket Enterprise (Web Marketplace / Portal Niaga)'
+      : selectedPackage === 'elite'
       ? 'Paket Elite (Web Custom Multi-Halaman)'
       : 'Paket UMKM Kilat (Landing Page 1 Halaman)';
 
@@ -343,7 +347,13 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
                   </div>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                     <Clock className="w-3 h-3" />
-                    <span>{selectedPackage === 'elite' ? '5 - 7 Hari' : 'Pengerjaan 24 Jam'}</span>
+                    <span>
+                      {selectedPackage === 'enterprise'
+                        ? '15 - 30 Hari'
+                        : selectedPackage === 'elite'
+                        ? '5 - 7 Hari'
+                        : 'Pengerjaan 24 Jam'}
+                    </span>
                   </span>
                 </div>
 

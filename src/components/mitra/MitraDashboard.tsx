@@ -27,6 +27,7 @@ import {
   DollarSign,
   Briefcase,
   GraduationCap,
+  Clock,
   X,
 } from 'lucide-react';
 import { MitraAccount } from '../../types/mitra';
@@ -57,6 +58,7 @@ export const MitraDashboard: React.FC<MitraDashboardProps> = ({
   const [toastNotice, setToastNotice] = useState<string | null>(null);
   const [isJustSaved, setIsJustSaved] = useState(false);
   const [isExportingDoc, setIsExportingDoc] = useState(false);
+  const [copiedEnterprisePromo, setCopiedEnterprisePromo] = useState(false);
 
   // Profile Form State
   const [profileForm, setProfileForm] = useState({
@@ -93,6 +95,58 @@ export const MitraDashboard: React.FC<MitraDashboardProps> = ({
   const handleShareReplicaWhatsApp = () => {
     const text = `Halo! Kunjungi website resmi saya sebagai Konsultan Resmi PT Inovasi Teknologi Digital Indonesia:\n\n${replicaLink}\n\nDapatkan promo pembuatan landing page UMKM kilat 1 hari jadi mulai Rp 499rb (gratis domain 1 tahun & bayar setelah web selesai)!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const handleCopyEnterprisePromo = () => {
+    const text = `🚀 *PELUANG BISNIS MARKETPLACE & PORTAL NIAGA BESAR!* 🚀
+
+Halo Rekan Pengusaha / Pebisnis!
+Ingin punya website Marketplace atau Portal Jual Beli komersial seperti *Shopee, Tokopedia, Lazada, atau OLX*?
+
+Kini hadir *PAKET ENTERPRISE* dari webmurah.biz.id:
+✨ *20 Fitur Lengkap & Unggulan:*
+1. 15-20 Menu Navigasi
+2. Gratis Domain (.com / .id / .co.id)
+3. Cloud Hosting 5 GB (120 Foto Kuota Kerja)
+4. Free WhatsApp & Telepon Terintegrasi
+5. Integrasi Media Sosial
+6. Website Bergaransi SSL HTTPS
+7. Template WP Premium Eksklusif
+8. Perpanjang Setiap Tahun
+9. User & Video Panduan Edit Mandiri
+10. Plugin Premium Berlisensi
+11. Free Desain Banner & Logo Usaha
+12. Free 1 Akun Email Bisnis Resmi
+13. Pemasangan Peta Lokasi Google Map
+14. Kecepatan Respon Server Super Cepat (Rata-rata 5ms)
+15. Bandwidth Unlimited Bebas Macet
+16. Statistik Pengunjung Website Realtime
+17. Formulir Kontak Standar Terpadu
+18. Free Support Pendampingan Teknis
+19. Garansi Selamanya (Lifetime Warranty)
+20. Integrasi Lapak Media & Katalog
+
+💰 *Investasi: Rp 5.000.000 (Wajib DP 50% = Rp 2.500.000)*
+⏱ *Waktu Pengerjaan: 15 - 30 Hari Kerja*
+⚠️ *Catatan: Harga belum termasuk pajak (PPN) serta biaya maintenance dan revisi.*
+
+Konsultasi resmi bersama saya:
+👤 *${mitra.namaLengkap}* (Konsultan Resmi)
+🌐 Pesan langsung melalui Web Replika Resmi saya:
+${replicaLink}
+
+Atau hubungi WhatsApp saya: https://wa.me/${(mitra.noHpWa || '').replace(/[^0-9]/g, '')}`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedEnterprisePromo(true);
+        setToastNotice('Teks Promosi Paket Enterprise berhasil disalin!');
+        setTimeout(() => setCopiedEnterprisePromo(false), 2500);
+        setTimeout(() => setToastNotice(null), 3500);
+      });
+    } else {
+      prompt('Salin teks promosi:', text);
+    }
   };
 
   const handleOpenReplicaPreview = () => {
@@ -346,6 +400,160 @@ export const MitraDashboard: React.FC<MitraDashboardProps> = ({
               <div className="text-[10px] text-sky-200 font-bold uppercase">Status Kontrak</div>
               <div className="text-xl font-black text-sky-300 mt-0.5">Sah &amp; Legal</div>
               <div className="text-[10px] text-slate-300">PT Inovasi Teknologi Digital</div>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* NOTIFIKASI INFO PAKET BARU: PAKET ENTERPRISE (MARKETPLACE & PORTAL NIAGA) */}
+        {/* ========================================================================= */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-950 via-indigo-950 to-slate-950 text-white border-2 border-purple-400/50 shadow-2xl p-6 sm:p-7 space-y-5">
+          {/* Decorative glowing background orb */}
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-purple-400/20 pb-4">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-[10px] uppercase tracking-wider shadow-sm animate-pulse">
+                  <Sparkles className="w-3.5 h-3.5 fill-current" />
+                  <span>NOTIFIKASI INFO PAKET BARU &bull; PRODUK RESMI TERSEDIA</span>
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 font-black text-[10px] uppercase tracking-wider">
+                  KOMISI MITRA 60% (RP 3.000.000 / CLOSING)
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                <span>Rilis Resmi: PAKET ENTERPRISE (Marketplace &amp; Portal Niaga)</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-purple-200 font-medium max-w-2xl leading-relaxed">
+                Kini Anda dapat menawarkan pembuatan website skala besar sekelas marketplace (contoh: <strong>Shopee, Tokopedia, Lazada, OLX</strong>) kepada calon klien dengan potensi bagi hasil komisi tertinggi!
+              </p>
+            </div>
+
+            {/* Quick Metrics Badge */}
+            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center p-3.5 rounded-2xl bg-white/5 border border-purple-400/30 shrink-0">
+              <span className="text-[10px] uppercase font-bold text-purple-300">Harga Paket</span>
+              <span className="text-2xl font-black text-purple-200">Rp 5.000.000</span>
+              <span className="text-[11px] font-black text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/40">
+                Hak Mitra: Rp 3.000.000
+              </span>
+            </div>
+          </div>
+
+          {/* Key Specifications & 20 Features from Official Brochure */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Box 1: Ketentuan Pemesanan */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-purple-400/20 space-y-2">
+              <div className="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-purple-400" />
+                <span>Skema &amp; Ketentuan</span>
+              </div>
+              <ul className="text-xs text-slate-300 space-y-1.5">
+                <li className="flex items-start gap-1.5">
+                  <span className="text-amber-400 font-bold">•</span>
+                  <span><strong>Wajib DP 50% (Rp 2.500.000)</strong> saat pemesanan order masuk.</span>
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <span className="text-amber-400 font-bold">•</span>
+                  <span>Estimasi pengerjaan: <strong>15 - 30 hari kerja</strong> teknis.</span>
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <span className="text-amber-400 font-bold">•</span>
+                  <span>Pelunasan sisa 50% setelah website selesai &amp; disetujui klien.</span>
+                </li>
+                <li className="flex items-start gap-1.5 text-amber-200/90 pt-1 text-[11px] border-t border-white/10">
+                  <span>*Disclaimer: Harga belum termasuk pajak (PPN) dan biaya maintenance serta revisi berkala.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Box 2 & 3: 20 Fitur Lengkap Produk */}
+            <div className="lg:col-span-2 p-4 rounded-2xl bg-white/5 border border-purple-400/20 space-y-2">
+              <div className="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span>20 Fitur Unggulan Detail Paket (Sesuai Brosur Resmi)</span>
+                </span>
+                <span className="text-[10px] text-purple-200 bg-purple-900/60 px-2 py-0.5 rounded">
+                  20 Fitur All-in
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-300 pt-1">
+                <div className="space-y-1">
+                  <div>✓ 15-20 Menu Navigasi Lengkap</div>
+                  <div>✓ Gratis Domain (.com, .id, .co.id)</div>
+                  <div>✓ Hosting 5 GB (120 Foto Kuota Kerja)</div>
+                  <div>✓ Free Whatsapp/Telepon</div>
+                  <div>✓ Integrasi Media Sosial</div>
+                  <div>✓ Website Bergaransi SSL HTTPS</div>
+                  <div>✓ Template WP Premium Berlisensi</div>
+                  <div>✓ Perpanjang Setiap Tahun</div>
+                  <div>✓ User dan Video Panduan Edit</div>
+                  <div>✓ Plugin Premium Siap Pakai</div>
+                </div>
+                <div className="space-y-1">
+                  <div>✓ Free Banner dan Logo Brand Usaha</div>
+                  <div>✓ Free 1 Email Bisnis Resmi</div>
+                  <div>✓ Pemasangan Google Map Interaktif</div>
+                  <div>✓ Respon Server Rata-Rata 5 Mili Detik</div>
+                  <div>✓ Bandwidth Unlimited Bebas Kuota</div>
+                  <div>✓ Statistic Kunjungan Website Realtime</div>
+                  <div>✓ Standar Kontak Form Terpadu</div>
+                  <div>✓ Free Support Pendampingan</div>
+                  <div>✓ Garansi Selamanya (Lifetime)</div>
+                  <div>✓ Integrasi Lapak Media &amp; Katalog</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Row */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-purple-400/20">
+            <div className="text-[11px] text-purple-300 font-medium">
+              Web Replika Anda sudah otomatis terintegrasi dengan pilihan Paket Enterprise di form pemesanan dan tabel harga.
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopyEnterprisePromo}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md shadow-purple-900/40"
+              >
+                {copiedEnterprisePromo ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                    <span>Tersalin ke Clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Salin Pesan Promosi WA</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.hash = '#/panduan-agen';
+                  window.dispatchEvent(new CustomEvent('navigate-tab', { detail: 'panduan-agen' }));
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-md"
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-amber-950" />
+                <span>Pelajari di Panduan Agen</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleOpenReplicaPreview}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all cursor-pointer border border-white/20"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Cek di Web Replika</span>
+              </button>
             </div>
           </div>
         </div>
