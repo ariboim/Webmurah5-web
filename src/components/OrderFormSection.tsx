@@ -480,7 +480,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
       recordReferralOrder(activePartner.slug, commission);
     }
 
-    const waUrl = generateWhatsAppUrl(formData, isPromoActive);
+    const waUrl = generateWhatsAppUrl(formData, isPromoActive, activePartner);
     try {
       window.open(waUrl, '_blank', 'noopener,noreferrer');
     } catch {
@@ -489,7 +489,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
   };
 
   const handleCopyText = () => {
-    const text = formatOrderToWhatsApp(formData, isPromoActive);
+    const text = formatOrderToWhatsApp(formData, isPromoActive, activePartner);
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -1566,14 +1566,25 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
               </div>
             </div>
 
-            {/* Admin Target WA Notice */}
-            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-emerald-950">
+            {/* Admin or Partner Target WA Notice */}
+            <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs ${
+              activePartner && activePartner.status === 'APPROVED'
+                ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-300 text-emerald-950 shadow-2xs'
+                : 'bg-emerald-50 border-emerald-200/80 text-emerald-950'
+            }`}>
               <div className="flex items-center gap-2.5">
                 <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0" />
-                <span>
-                  Formulir ini akan otomatis terhubung ke WhatsApp Admin di nomor{' '}
-                  <strong className="font-bold text-emerald-800">{ADMIN_WA_DISPLAY}</strong> untuk verifikasi kilat.
-                </span>
+                {activePartner && activePartner.status === 'APPROVED' ? (
+                  <span>
+                    Formulir ini otomatis terhubung langsung ke <strong>WhatsApp Konsultan Sales: {activePartner.namaLengkap}</strong> di nomor{' '}
+                    <strong className="font-bold text-emerald-800">{activePartner.noHpWa || activePartner.phoneInternational}</strong> (Nama konsultan terkunci otomatis &amp; komisi 60% teratribusi).
+                  </span>
+                ) : (
+                  <span>
+                    Formulir ini akan otomatis terhubung ke WhatsApp Admin di nomor{' '}
+                    <strong className="font-bold text-emerald-800">{ADMIN_WA_DISPLAY}</strong> untuk verifikasi kilat.
+                  </span>
+                )}
               </div>
               <button
                 type="button"
@@ -1599,7 +1610,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                   </button>
                 </div>
                 <pre className="whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto text-[11px] text-slate-200">
-                  {formatOrderToWhatsApp(formData, isPromoActive)}
+                  {formatOrderToWhatsApp(formData, isPromoActive, activePartner)}
                 </pre>
               </div>
             )}
@@ -1842,7 +1853,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                   <p className="text-slate-600 text-[11px]">
                     Jika WhatsApp tidak terbuka otomatis karena diblokir browser, silakan{' '}
                     <a
-                      href={generateWhatsAppUrl(formData, isPromoActive)}
+                      href={generateWhatsAppUrl(formData, isPromoActive, activePartner)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-bold underline text-emerald-700 hover:text-emerald-800"
@@ -1873,6 +1884,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
         formData={formData}
         isPromoActive={isPromoActive}
         selectedPackage={selectedPackage}
+        partner={activePartner}
       />
     </section>
   );

@@ -18,6 +18,7 @@ import {
   generateWhatsAppUrl,
   formatOrderToWhatsApp,
 } from '../types/order';
+import { MitraAccount } from '../types/mitra';
 
 interface OrderSuccessAnimationProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ interface OrderSuccessAnimationProps {
   isPromoActive: boolean;
   selectedPackage: 'umkm' | 'elite';
   orderCode?: string;
+  partner?: MitraAccount | null;
 }
 
 interface Particle {
@@ -47,6 +49,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
   isPromoActive,
   selectedPackage,
   orderCode,
+  partner,
 }) => {
   const [copied, setCopied] = useState(false);
   const [hasPlayedSound, setHasPlayedSound] = useState(false);
@@ -141,7 +144,7 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
   }, [isOpen, hasPlayedSound]);
 
   const handleCopy = () => {
-    const text = formatOrderToWhatsApp(formData, isPromoActive);
+    const text = formatOrderToWhatsApp(formData, isPromoActive, partner);
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -159,7 +162,8 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
       ? 'Paket Elite (Web Custom Multi-Halaman)'
       : 'Paket UMKM Kilat (Landing Page 1 Halaman)';
 
-  const waUrl = generateWhatsAppUrl(formData, isPromoActive);
+  const waUrl = generateWhatsAppUrl(formData, isPromoActive, partner);
+  const partnerPhone = partner ? (partner.noHpWa || (partner as { phoneInternational?: string }).phoneInternational || '') : '';
 
   return (
     <AnimatePresence>
@@ -368,6 +372,23 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
                       <span className="font-black text-emerald-700 text-xs sm:text-sm">{finalPriceLabel}</span>
                     </div>
                   </div>
+
+                  {partner && (
+                    <div className="col-span-2 pt-2 border-t border-emerald-200/80 bg-emerald-50/80 p-2.5 rounded-xl space-y-0.5">
+                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-emerald-800">
+                        <span>Konsultan Sales Mitra Terkunci:</span>
+                        <span className="text-emerald-700 font-bold">Komisi 60% Aktif</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-extrabold text-slate-900">
+                          {partner.namaLengkap} ({partner.id})
+                        </span>
+                        <span className="font-mono text-emerald-800 text-[11px] font-bold">
+                          {partnerPhone}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
 
@@ -398,7 +419,11 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
                   className="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-98"
                 >
                   <MessageCircle className="w-5 h-5 fill-current" />
-                  <span>Kirim &amp; Chat Tim via WhatsApp</span>
+                  <span>
+                    {partner
+                      ? `Kirim & Chat Konsultan (${partner.namaLengkap}) via WA`
+                      : 'Kirim & Chat Tim via WhatsApp'}
+                  </span>
                   <ExternalLink className="w-4 h-4 ml-1 opacity-80" />
                 </a>
 
@@ -433,9 +458,15 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
               </motion.div>
 
               {/* Assistance reminder */}
-              <p className="text-[11px] text-slate-500 pt-1">
-                WhatsApp resmi Customer Support: <span className="font-bold text-slate-700">{ADMIN_WA_DISPLAY}</span>
-              </p>
+              {partner ? (
+                <p className="text-[11px] text-emerald-900 pt-1 font-medium">
+                  Terhubung ke WhatsApp Konsultan: <strong className="font-bold text-emerald-950">{partner.namaLengkap}</strong> ({partnerPhone}) &bull; CS Admin: {ADMIN_WA_DISPLAY}
+                </p>
+              ) : (
+                <p className="text-[11px] text-slate-500 pt-1">
+                  WhatsApp resmi Customer Support: <span className="font-bold text-slate-700">{ADMIN_WA_DISPLAY}</span>
+                </p>
+              )}
             </div>
           </motion.div>
         </div>

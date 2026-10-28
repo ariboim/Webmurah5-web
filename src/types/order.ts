@@ -28,7 +28,19 @@ export interface OrderFormData {
 export const ADMIN_WA_NUMBER = '6289673686625';
 export const ADMIN_WA_DISPLAY = '0896-7368-6625';
 
-export function formatOrderToWhatsApp(data: OrderFormData, isPromoActiveOverride?: boolean): string {
+export interface PartnerAttribution {
+  namaLengkap: string;
+  id: string;
+  slug?: string;
+  phoneInternational?: string;
+  noHpWa?: string;
+}
+
+export function formatOrderToWhatsApp(
+  data: OrderFormData,
+  isPromoActiveOverride?: boolean,
+  partner?: PartnerAttribution | null
+): string {
   const isPromo = isPromoActiveOverride ?? data.isPromoActive ?? false;
   const isElite = data.pilihanPaket === 'elite';
   const tujuanList = [...data.tujuanLandingPage];
@@ -53,6 +65,15 @@ export function formatOrderToWhatsApp(data: OrderFormData, isPromoActiveOverride
     ? `Status Promo: YA (KLAIM PROMO DISKON 50% BANNER)\nTotal Tagihan: Rp 249.500`
     : `Status Promo: REGULER FLASH SALE\nTotal Tagihan: Rp 499.000`;
 
+  // Sales Consultant Attribution Details
+  const consultantName = partner
+    ? `${partner.namaLengkap} (${partner.id})`
+    : data.namaSalesKonsultan || '-';
+
+  const replicaLink = partner?.slug
+    ? `https://www.webmurah.biz.id/reff/${partner.slug}`
+    : null;
+
   const lines = [
     `*FORMULIR PEMESANAN JASA WEBSITE WEBMURAH.BIZ.ID*`,
     paketText,
@@ -62,7 +83,9 @@ export function formatOrderToWhatsApp(data: OrderFormData, isPromoActiveOverride
     `--------------------------------`,
     `Tanggal: ${new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}`,
     ``,
-    data.namaSalesKonsultan ? `*Nama Sales Konsultan:* ${data.namaSalesKonsultan}` : `*Nama Sales Konsultan:* -`,
+    `*KONSULTAN SALES MITRA:* ${consultantName}`,
+    replicaLink ? `*WEB REPLIKA SUMBER:* ${replicaLink}` : null,
+    partner ? `*ATRIBUSI KOMISI:* 60% Hak Mitra Terkunci Otomatis` : null,
     ``,
     `*1. DATA KLIEN*`,
     `• *Nama Lengkap / PIC:* ${data.namaLengkap || '-'}`,
@@ -92,7 +115,11 @@ export function formatOrderToWhatsApp(data: OrderFormData, isPromoActiveOverride
 • Waktu Pengerjaan: 5 - 7 hari kerja.
 • Fasilitas: Sampai 7 halaman custom, optimasi PageSpeed, SEO on-page, domain & hosting 1 tahun, dan free revisi 2x.
 
-Halo Admin Webkilat, saya memesan *PAKET ELITE (Web Custom - Rp 3.000.000)* dengan komitmen DP 50% & estimasi pengerjaan 5-7 hari kerja. Mohon segera dipandu untuk sesi briefing materi & nomor rekening DP. Terima kasih!`
+${
+  partner
+    ? `Halo Kak ${partner.namaLengkap} (Konsultan Resmi PT Inovasi Teknologi Digital Indonesia), saya memesan *PAKET ELITE (Web Custom - Rp 3.000.000)* melalui Web Replika Anda (${replicaLink}). Mohon segera dipandu untuk sesi briefing materi & proses koordinasi ke admin. Terima kasih!`
+    : `Halo Admin Webkilat, saya memesan *PAKET ELITE (Web Custom - Rp 3.000.000)* dengan komitmen DP 50% & estimasi pengerjaan 5-7 hari kerja. Mohon segera dipandu untuk sesi briefing materi & nomor rekening DP. Terima kasih!`
+}`
       : `*4. SYARAT & KETENTUAN PAKET UMKM:*
 • Skema Pembayaran: PESAN SEKARANG, BAYAR SETELAH JADI (100% Bebas Risiko).
 • Waktu Pengerjaan: Kilat 1 hari kerja (24 jam selesai).
@@ -100,7 +127,9 @@ Halo Admin Webkilat, saya memesan *PAKET ELITE (Web Custom - Rp 3.000.000)* deng
 • Free revisi 1x, free domain .my.id/.biz.id 1 tahun, cloud hosting & tombol WhatsApp.
 
 ${
-  isPromo
+  partner
+    ? `Halo Kak ${partner.namaLengkap} (Konsultan Resmi PT Inovasi Teknologi Digital Indonesia), saya sudah mengisi formulir order di atas melalui Web Replika Anda (${replicaLink}) dengan sales konsultan ${partner.namaLengkap}. Mohon dibantu teruskan dan koordinasikan ke admin/tim teknis agar website saya segera diproses. Terima kasih!`
+    : isPromo
     ? 'Halo Admin Webkilat, saya memesan lewat *Promo Diskon 50% (Rp 249.500)*. Mohon segera diproses pengerjaannya 1 hari kilat. Terima kasih!'
     : 'Halo Admin Webkilat, saya sudah mengisi formulir order di atas dan menyetujui ketentuan paket UMKM (Rp 499.000). Mohon segera diproses pengerjaannya. Terima kasih!'
 }`
@@ -109,7 +138,21 @@ ${
   return lines.join('\n');
 }
 
-export function generateWhatsAppUrl(data: OrderFormData, isPromoActiveOverride?: boolean): string {
-  const message = formatOrderToWhatsApp(data, isPromoActiveOverride);
-  return `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(message)}`;
+export function generateWhatsAppUrl(
+  data: OrderFormData,
+  isPromoActiveOverride?: boolean,
+  partner?: PartnerAttribution | null
+): string {
+  const message = formatOrderToWhatsApp(data, isPromoActiveOverride, partner);
+
+  let targetNumber = ADMIN_WA_NUMBER;
+  if (partner) {
+    const rawNumber = partner.phoneInternational || partner.noHpWa || '';
+    const digitsOnly = rawNumber.replace(/\D/g, '');
+    if (digitsOnly.length >= 8) {
+      targetNumber = digitsOnly.startsWith('0') ? '62' + digitsOnly.slice(1) : digitsOnly;
+    }
+  }
+
+  return `https://wa.me/${targetNumber}?text=${encodeURIComponent(message)}`;
 }

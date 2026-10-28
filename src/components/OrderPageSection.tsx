@@ -84,14 +84,26 @@ export const OrderPageSection: React.FC<OrderPageSectionProps> = ({
                 Halaman Kontak
               </button>
             )}
-            <a
-              href={`https://wa.me/${ADMIN_WA_NUMBER}?text=Halo%20Admin%20Indo%20Digital,%20saya%20mau%20tanya%20sebelum%20isi%20form%20order.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-sm"
-            >
-              Chat WhatsApp Admin
-            </a>
+            {activePartner ? (
+              <a
+                href={`https://wa.me/${activePartner.phoneInternational || activePartner.noHpWa.replace(/\D/g, '')}?text=${encodeURIComponent(`Halo Kak ${activePartner.namaLengkap}, saya ingin konsultasi sebelum mengisi formulir pemesanan website.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>Chat Konsultan ({activePartner.namaLengkap})</span>
+              </a>
+            ) : (
+              <a
+                href={`https://wa.me/${ADMIN_WA_NUMBER}?text=Halo%20Admin%20Indo%20Digital,%20saya%20mau%20tanya%20sebelum%20isi%20form%20order.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-sm"
+              >
+                Chat WhatsApp Admin
+              </a>
+            )}
           </div>
         </div>
       </div>
