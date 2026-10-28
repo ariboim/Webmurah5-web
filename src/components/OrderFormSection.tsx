@@ -1019,9 +1019,6 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                           ID: {activePartner.id}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500 font-mono mt-0.5">
-                        Tautan Replika: www.webmurah.biz.id/reff/{activePartner.slug}
-                      </div>
                     </div>
                   </div>
 
