@@ -49,6 +49,22 @@ export const AdminMitraManagement: React.FC<{
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedRekeningId, setCopiedRekeningId] = useState<string | null>(null);
+  const [copiedReplicaSlug, setCopiedReplicaSlug] = useState<string | null>(null);
+
+  const handleCopyReplicaLink = (slug: string) => {
+    const url = `https://www.webmurah.biz.id/reff/${slug}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopiedReplicaSlug(slug);
+        setTimeout(() => setCopiedReplicaSlug(null), 2200);
+        showNotification(`Link Web Replika www.webmurah.biz.id/reff/${slug} berhasil disalin!`);
+      }).catch(() => {
+        prompt('Salin link web replika:', url);
+      });
+    } else {
+      prompt('Salin link web replika:', url);
+    }
+  };
 
   // Modal Manual Add State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -573,20 +589,21 @@ export const AdminMitraManagement: React.FC<{
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[820px]">
+          <table className="w-full text-left text-xs min-w-[960px]">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-bold tracking-wider text-[10px]">
               <tr>
-                <th className="py-3 px-4 min-w-[230px]">Mitra &amp; Kontak</th>
-                <th className="py-3 px-4 min-w-[140px]">Status Akun</th>
-                <th className="py-3 px-4 min-w-[250px]">Domisili &amp; Rekening</th>
-                <th className="py-3 px-4 min-w-[120px]">Tgl Registrasi</th>
+                <th className="py-3 px-4 min-w-[220px]">Mitra &amp; Kontak</th>
+                <th className="py-3 px-4 min-w-[130px]">Status Akun</th>
+                <th className="py-3 px-4 min-w-[210px] bg-sky-50/60 text-sky-950 font-black">Link Web Replika</th>
+                <th className="py-3 px-4 min-w-[240px]">Domisili &amp; Rekening</th>
+                <th className="py-3 px-4 min-w-[110px]">Tgl Registrasi</th>
                 <th className="py-3 px-4 min-w-[170px] text-right">Aksi Cepat</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
               {filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-slate-400">
+                  <td colSpan={6} className="py-10 text-center text-slate-400">
                     <Users className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                     <div>Tidak ada data mitra yang sesuai dengan pencarian atau filter.</div>
                     <button
@@ -674,8 +691,58 @@ export const AdminMitraManagement: React.FC<{
                         )}
                       </td>
 
+                      {/* Link Web Replika Column (Official requirement) */}
+                      <td className="py-3.5 px-4 min-w-[210px]">
+                        {m.status === 'APPROVED' ? (
+                          <div className="bg-sky-50/70 hover:bg-sky-100/80 border border-sky-200 rounded-xl p-2 transition-colors space-y-1">
+                            <div className="flex items-center justify-between gap-1.5">
+                              <a
+                                href={`https://www.webmurah.biz.id/reff/${m.slug || m.namaLengkap.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  window.location.hash = `#/reff/${m.slug}`;
+                                  window.dispatchEvent(new CustomEvent('open-replica-partner', { detail: m.slug }));
+                                }}
+                                className="text-xs font-mono font-bold text-[#1D3582] hover:text-sky-700 hover:underline flex items-center gap-1 truncate"
+                                title={`Buka Web Replika: www.webmurah.biz.id/reff/${m.slug}`}
+                              >
+                                <ExternalLink className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                                <span className="truncate select-all">/reff/{m.slug}</span>
+                              </a>
+
+                              <button
+                                type="button"
+                                onClick={() => handleCopyReplicaLink(m.slug)}
+                                className="p-1 rounded-md text-slate-400 hover:text-[#1D3582] hover:bg-white transition-all cursor-pointer shrink-0"
+                                title="Salin tautan web replika mitra"
+                              >
+                                {copiedReplicaSlug === m.slug ? (
+                                  <span className="flex items-center text-[10px] text-emerald-600 font-bold gap-0.5">
+                                    <Check className="w-3 h-3" />
+                                    <span>Tersalin</span>
+                                  </span>
+                                ) : (
+                                  <Copy className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
+                              <span className="text-emerald-700 font-bold">{m.referralClicks ?? 0} klik</span>
+                              <span>&bull;</span>
+                              <span className="text-amber-700 font-bold">{m.referralOrders ?? 0} order</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-slate-400 text-[11px] italic">
+                            <span className="w-2 h-2 rounded-full bg-amber-400" />
+                            <span>{m.status === 'PENDING_APPROVAL' ? 'Belum Aktif (Pending)' : 'Non-aktif'}</span>
+                          </div>
+                        )}
+                      </td>
+
                       {/* Domisili & Bank Rekening */}
-                      <td className="py-3.5 px-4 min-w-[250px]">
+                      <td className="py-3.5 px-4 min-w-[240px]">
                         {/* Domisili */}
                         <div className="flex items-center gap-1.5 text-slate-900 font-black text-xs">
                           <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />

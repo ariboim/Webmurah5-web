@@ -8,6 +8,8 @@ import {
 } from '../types/order';
 import { trackOrderSubmission } from '../utils/analytics';
 import { OrderSuccessAnimation } from './OrderSuccessAnimation';
+import { MitraAccount } from '../types/mitra';
+import { recordReferralOrder } from '../utils/mitraStorage';
 import {
   Send,
   MessageCircle,
@@ -91,7 +93,7 @@ const SAMPLE_DEMO_DATA: OrderFormData = {
   ctaLainnya: '',
 };
 
-export const OrderFormSection: React.FC = () => {
+export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }> = ({ activePartner }) => {
   const [formData, setFormData] = useState<OrderFormData>(() => {
     try {
       const saved = localStorage.getItem('webkilat_saved_form');
@@ -100,6 +102,16 @@ export const OrderFormSection: React.FC = () => {
       return INITIAL_FORM;
     }
   });
+
+  // Auto-lock and attribute to active replica partner if present
+  useEffect(() => {
+    if (activePartner && activePartner.status === 'APPROVED') {
+      setFormData((prev) => ({
+        ...prev,
+        namaSalesKonsultan: `${activePartner.namaLengkap} (${activePartner.id})`,
+      }));
+    }
+  }, [activePartner]);
 
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -461,6 +473,13 @@ export const OrderFormSection: React.FC = () => {
     setShowSuccessModal(true);
     const finalPrice = isPromoActive ? 249000 : 499000;
     trackOrderSubmission(formData.namaBisnis, finalPrice);
+
+    // Record referral order attribution for active partner
+    if (activePartner && activePartner.status === 'APPROVED') {
+      const commission = selectedPackage === 'elite' ? 1800000 : 300000;
+      recordReferralOrder(activePartner.slug, commission);
+    }
+
     const waUrl = generateWhatsAppUrl(formData, isPromoActive);
     try {
       window.open(waUrl, '_blank', 'noopener,noreferrer');
@@ -971,20 +990,72 @@ export const OrderFormSection: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-10">
-            {/* Sales Consultant (optional) */}
-            <div className="p-4 bg-sky-50/50 rounded-2xl border border-sky-100">
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Nama sales konsultan : <span className="text-slate-400 font-normal">( optional )</span>
-              </label>
-              <input
-                type="text"
-                name="namaSalesKonsultan"
-                value={formData.namaSalesKonsultan}
-                onChange={handleInputChange}
-                placeholder="Contoh: Rian / Dikosongkan jika langsung order web"
-                className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-hidden text-slate-800 placeholder:text-slate-400"
-              />
-            </div>
+            {/* Sales Consultant Attribution (Locked if visiting via /reff/:namamitra) */}
+            {activePartner && activePartner.status === 'APPROVED' ? (
+              <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl border-2 border-emerald-400 shadow-sm space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-xs">
+                      <Lock className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </span>
+                    <span className="text-xs font-black uppercase tracking-wider text-emerald-900">
+                      Konsultan Mitra Resmi (Terkunci Otomatis)
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-950 border border-emerald-300 shadow-2xs">
+                    Referral Aktif
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-emerald-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center font-black text-emerald-800 text-sm shrink-0">
+                      {activePartner.namaLengkap.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="text-sm font-black text-slate-900 flex items-center gap-2">
+                        <span>{activePartner.namaLengkap}</span>
+                        <span className="text-[10px] bg-cyan-100 text-cyan-900 font-bold px-2 py-0.5 rounded">
+                          ID: {activePartner.id}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-500 font-mono mt-0.5">
+                        Tautan Replika: www.webmurah.biz.id/reff/{activePartner.slug}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 self-start sm:self-center">
+                    ✓ Atribusi Penjualan 100% Terkunci
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-emerald-800 font-medium leading-relaxed">
+                  Pemesanan Anda diproses dengan pendampingan langsung oleh <strong>{activePartner.namaLengkap}</strong>. Komisi kemitraan resmi 60% otomatis teratribusi ke akun mitra bersangkutan.
+                </p>
+
+                {/* Hidden input to guarantee attribution value is submitted */}
+                <input
+                  type="hidden"
+                  name="namaSalesKonsultan"
+                  value={`${activePartner.namaLengkap} (${activePartner.id})`}
+                />
+              </div>
+            ) : (
+              <div className="p-4 bg-sky-50/50 rounded-2xl border border-sky-100">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nama sales konsultan : <span className="text-slate-400 font-normal">( optional )</span>
+                </label>
+                <input
+                  type="text"
+                  name="namaSalesKonsultan"
+                  value={formData.namaSalesKonsultan}
+                  onChange={handleInputChange}
+                  placeholder="Contoh: Rian / Dikosongkan jika langsung order web"
+                  className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all outline-hidden text-slate-800 placeholder:text-slate-400"
+                />
+              </div>
+            )}
 
             {/* ========================================================================= */}
             {/* STEP 2: DATA KLIEN & KONTAK                                               */}

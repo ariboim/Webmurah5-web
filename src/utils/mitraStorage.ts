@@ -3,13 +3,35 @@ import { MitraAccount, MitraStatus } from '../types/mitra';
 const MITRA_ACCOUNTS_STORAGE_KEY = 'itdi_mitra_accounts_v2';
 const CURRENT_MITRA_SESSION_KEY = 'itdi_current_mitra_session_v2';
 
+export function generateMitraSlug(nama: string): string {
+  return (nama || '')
+    .toLowerCase()
+    .replace(/,\s*[a-z.\s]+/gi, '') // strip titles like , S.Kom
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+export function toInternationalWhatsApp(phone: string): string {
+  const digits = (phone || '').replace(/\D/g, '');
+  if (digits.startsWith('0')) {
+    return '62' + digits.slice(1);
+  }
+  if (digits.startsWith('62')) {
+    return digits;
+  }
+  return '62' + digits;
+}
+
 // Seed initial realistic partners for immediate testing
 const INITIAL_MITRA_SEED: MitraAccount[] = [
   {
     id: 'ITDI-MTR-2026-5652',
     namaLengkap: 'Prima aldino',
+    slug: 'prima-aldino',
     email: '1primaaldino@gmail.com',
     noHpWa: '085811735280',
+    phoneInternational: '6285811735280',
     password: 'mitra123',
     status: 'APPROVED',
     createdAt: '2026-10-27T06:30:00Z',
@@ -25,12 +47,18 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
     nomorSuratPerjanjian: 'SPK-ITDI/MITRA/2026/10/5652',
     tanggalBergabung: '27 Oktober 2026',
     adminNotes: 'Akses resmi disetujui Admin PT ITDI',
+    referralClicks: 142,
+    referralLeads: 18,
+    referralOrders: 7,
+    totalKomisi: 2100000,
   },
   {
     id: 'ITDI-MTR-2026-6075',
     namaLengkap: 'Padilah ramadhan',
+    slug: 'padilah-ramadhan',
     email: 'padilahramadhan002@gmail.com',
     noHpWa: '087874805975',
+    phoneInternational: '6287874805975',
     password: 'mitra123',
     status: 'APPROVED',
     createdAt: '2026-10-27T06:35:00Z',
@@ -46,12 +74,18 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
     nomorSuratPerjanjian: 'SPK-ITDI/MITRA/2026/10/6075',
     tanggalBergabung: '27 Oktober 2026',
     adminNotes: 'Akses resmi disetujui Admin PT ITDI',
+    referralClicks: 98,
+    referralLeads: 12,
+    referralOrders: 4,
+    totalKomisi: 1200000,
   },
   {
     id: 'ITDI-MTR-2026-0018',
     namaLengkap: 'Budi Santoso, S.Kom',
+    slug: 'budi-santoso',
     email: 'budi.santoso@gmail.com',
     noHpWa: '081234567890',
+    phoneInternational: '6281234567890',
     password: 'mitra123',
     status: 'APPROVED',
     createdAt: '2026-10-12T08:30:00Z',
@@ -66,12 +100,18 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
     fotoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
     nomorSuratPerjanjian: 'SPK-ITDI/MITRA/2026/10/7742',
     tanggalBergabung: '12 Oktober 2026',
+    referralClicks: 215,
+    referralLeads: 29,
+    referralOrders: 11,
+    totalKomisi: 3300000,
   },
   {
     id: 'ITDI-MTR-2026-0024',
     namaLengkap: 'Siti Rahmawati',
+    slug: 'siti-rahmawati',
     email: 'siti.rahma@yahoo.com',
     noHpWa: '085712348899',
+    phoneInternational: '6285712348899',
     password: 'mitra123',
     status: 'PENDING_APPROVAL',
     createdAt: '2026-10-24T14:15:00Z',
@@ -85,12 +125,18 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
     fotoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&auto=format&fit=crop&q=80',
     nomorSuratPerjanjian: 'SPK-ITDI/MITRA/2026/10/3389',
     tanggalBergabung: '24 Oktober 2026',
+    referralClicks: 0,
+    referralLeads: 0,
+    referralOrders: 0,
+    totalKomisi: 0,
   },
   {
     id: 'ITDI-MTR-2026-0031',
     namaLengkap: 'Deni Hendrawan',
+    slug: 'deni-hendrawan',
     email: 'deni.hendrawan@gmail.com',
     noHpWa: '081399887766',
+    phoneInternational: '6281399887766',
     password: 'mitra123',
     status: 'BLOCKED',
     createdAt: '2026-09-18T10:00:00Z',
@@ -106,6 +152,10 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
     namaPemilikRekening: 'Deni Hendrawan',
     nomorSuratPerjanjian: 'SPK-ITDI/MITRA/2026/09/5512',
     tanggalBergabung: '19 September 2026',
+    referralClicks: 45,
+    referralLeads: 3,
+    referralOrders: 1,
+    totalKomisi: 300000,
   },
 ];
 
@@ -261,6 +311,34 @@ export function getAllMitra(): MitraAccount[] {
       );
       if (!exists) {
         parsed.push({ ...seed });
+        updatedNeeded = true;
+      }
+    }
+
+    // 3. Ensure all accounts have a clean unique slug and phoneInternational
+    for (const item of parsed) {
+      if (!item.slug) {
+        item.slug = generateMitraSlug(item.namaLengkap);
+        updatedNeeded = true;
+      }
+      if (!item.phoneInternational) {
+        item.phoneInternational = toInternationalWhatsApp(item.noHpWa);
+        updatedNeeded = true;
+      }
+      if (item.referralClicks === undefined) {
+        item.referralClicks = item.status === 'APPROVED' ? Math.floor(Math.random() * 80) + 20 : 0;
+        updatedNeeded = true;
+      }
+      if (item.referralLeads === undefined) {
+        item.referralLeads = item.status === 'APPROVED' ? Math.floor(Math.random() * 15) + 3 : 0;
+        updatedNeeded = true;
+      }
+      if (item.referralOrders === undefined) {
+        item.referralOrders = item.status === 'APPROVED' ? Math.floor(Math.random() * 5) + 1 : 0;
+        updatedNeeded = true;
+      }
+      if (item.totalKomisi === undefined) {
+        item.totalKomisi = (item.referralOrders || 0) * 300000;
         updatedNeeded = true;
       }
     }
@@ -431,11 +509,22 @@ export function registerMitra(payload: RegisterMitraPayload): { success: boolean
   });
   const randomCode = Math.floor(1000 + Math.random() * 9000);
 
+  const rawSlug = generateMitraSlug(payload.namaLengkap);
+  const existingSlugs = new Set(currentList.map((m) => m.slug));
+  let finalSlug = rawSlug;
+  let counter = 1;
+  while (existingSlugs.has(finalSlug)) {
+    finalSlug = `${rawSlug}-${counter}`;
+    counter++;
+  }
+
   const newMitra: MitraAccount = {
     id: payload.id || generateMitraId(),
     namaLengkap: payload.namaLengkap.trim(),
+    slug: finalSlug,
     email: cleanEmail,
     noHpWa: payload.noHpWa.trim(),
+    phoneInternational: toInternationalWhatsApp(payload.noHpWa.trim()),
     password: payload.password?.trim() || 'mitra123',
     status: payload.status || 'PENDING_APPROVAL',
     createdAt: new Date().toISOString(),
@@ -450,6 +539,10 @@ export function registerMitra(payload: RegisterMitraPayload): { success: boolean
     nomorSuratPerjanjian: `SPK-ITDI/MITRA/${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${randomCode}`,
     tanggalBergabung: dateFormatted,
     adminNotes: payload.adminNotes,
+    referralClicks: 0,
+    referralLeads: 0,
+    referralOrders: 0,
+    totalKomisi: 0,
   };
 
   const updatedList = [newMitra, ...currentList];
@@ -805,4 +898,59 @@ export function clearMitraSession(): void {
   try {
     localStorage.removeItem(CURRENT_MITRA_SESSION_KEY);
   } catch {}
+}
+
+// =========================================================================
+// WEB REPLIKA & REFERRAL TRACKING HELPERS
+// =========================================================================
+
+/**
+ * Find partner by slug or id or name parameter.
+ * Supports: 'budi-santoso', 'prima-aldino', 'padilah-ramadhan'
+ */
+export function findMitraBySlug(slugOrId: string): MitraAccount | undefined {
+  if (!slugOrId) return undefined;
+  const clean = slugOrId.trim().toLowerCase().replace(/^\/+/, '');
+  const all = getAllMitra();
+  return all.find((m) => {
+    const slugMatch = (m.slug || generateMitraSlug(m.namaLengkap)).toLowerCase() === clean;
+    const idMatch = m.id.toLowerCase() === clean;
+    const cleanName = generateMitraSlug(m.namaLengkap).toLowerCase() === clean;
+    return slugMatch || idMatch || cleanName;
+  });
+}
+
+/**
+ * Builds the canonical replica URL for an approved partner:
+ * e.g. https://www.webmurah.biz.id/reff/:namamitra
+ */
+export function getReplicaUrl(slug: string): string {
+  const clean = (slug || '').trim().toLowerCase();
+  return `https://www.webmurah.biz.id/reff/${clean}`;
+}
+
+/**
+ * Increment referral visitor click counter
+ */
+export function trackReferralVisit(slug: string): void {
+  const all = getAllMitra();
+  const target = all.find((m) => (m.slug || generateMitraSlug(m.namaLengkap)).toLowerCase() === slug.toLowerCase());
+  if (target && target.status === 'APPROVED') {
+    target.referralClicks = (target.referralClicks || 0) + 1;
+    saveAllMitra(all);
+  }
+}
+
+/**
+ * Record a lead click or order through a referral replica page
+ */
+export function recordReferralOrder(slug: string, komisi: number = 300000): void {
+  const all = getAllMitra();
+  const target = all.find((m) => (m.slug || generateMitraSlug(m.namaLengkap)).toLowerCase() === slug.toLowerCase());
+  if (target && target.status === 'APPROVED') {
+    target.referralOrders = (target.referralOrders || 0) + 1;
+    target.referralLeads = (target.referralLeads || 0) + 1;
+    target.totalKomisi = (target.totalKomisi || 0) + komisi;
+    saveAllMitra(all);
+  }
 }

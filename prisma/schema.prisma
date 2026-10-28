@@ -1,0 +1,179 @@
+// ============================================================================
+// PT INOVASI TEKNOLOGI DIGITAL INDONESIA
+// Prisma ORM Schema - Web Replika & Referral Attribution System
+// File: /prisma/schema.prisma
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MitraStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  BLOCKED
+}
+
+enum PackageTier {
+  UMKM
+  ELITE
+}
+
+enum OrderStatus {
+  PENDING_REVIEW
+  IN_PROGRESS
+  COMPLETED_REVIEW
+  PAID
+  CANCELLED
+}
+
+enum SettlementStatus {
+  PENDING
+  PROCESSED
+  TRANSFERRED
+  FAILED
+}
+
+model Mitra {
+  id                   String           @id // e.g. "ITDI-MTR-2026-5652"
+  namaLengkap          String           @map("nama_lengkap")
+  slug                 String           @unique // e.g. "prima-aldino" for /reff/:namamitra
+  email                String           @unique
+  phoneNumber          String           @map("phone_number")
+  phoneInternational   String           @map("phone_international") // e.g. "6285811735280"
+  passwordHash         String           @map("password_hash")
+  pinAccess            String?          @map("pin_access")
+  status               MitraStatus      @default(PENDING)
+
+  // Profile & Verification Details
+  nik                  String?
+  tempatTanggalLahir   String?          @map("tempat_tanggal_lahir")
+  alamatKtp            String?          @map("alamat_ktp")
+  kotaDomisili         String?          @map("kota_domisili")
+
+  // Weekly 60% Revenue Share Bank Account
+  namaBank             String           @default("BCA") @map("nama_bank")
+  nomorRekening        String?          @map("nomor_rekening")
+  namaPemilikRekening  String?          @map("nama_pemilik_rekening")
+
+  // Documents & Metadata
+  fotoUrl              String?          @map("foto_url")
+  nomorSuratPerjanjian String?          @map("nomor_surat_perjanjian")
+  tanggalBergabung     DateTime         @default(now()) @map("tanggal_bergabung")
+  adminNotes           String?          @map("admin_notes")
+
+  // Metrics
+  totalClicks          Int              @default(0) @map("total_clicks")
+  totalLeads           Int              @default(0) @map("total_leads")
+  totalOrders          Int              @default(0) @map("total_orders")
+  totalEarnings        Decimal          @default(0.00) @map("total_earnings") @db.Decimal(12, 2)
+
+  // Relations
+  clicks               ReferralClick[]
+  orders               Order[]
+  settlements          MitraSettlement[]
+
+  // Timestamps
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
+  approvedAt           DateTime?        @map("approved_at")
+  rejectedAt           DateTime?        @map("rejected_at")
+  blockedAt            DateTime?        @map("blocked_at")
+
+  @@index([slug, status])
+  @@index([status])
+  @@map("mitra")
+}
+
+model ReferralClick {
+  id          String   @id @default(uuid())
+  mitraId     String   @map("mitra_id")
+  slug        String
+  visitorIp   String?  @map("visitor_ip")
+  userAgent   String?  @map("user_agent")
+  refererUrl  String?  @map("referer_url")
+  utmSource   String?  @map("utm_source")
+  utmMedium   String?  @map("utm_medium")
+  sessionId   String?  @map("session_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  mitra       Mitra    @relation(fields: [mitraId], references: [id], onDelete: Cascade)
+
+  @@index([mitraId, createdAt])
+  @@index([slug])
+  @@map("referral_clicks")
+}
+
+model Order {
+  id                 String       @id // e.g. "ORD-20261027-0091"
+  mitraId            String?      @map("mitra_id")
+  mitraSlug          String?      @map("mitra_slug")
+
+  // Client Details
+  clientName         String       @map("client_name")
+  clientPhone        String       @map("client_phone")
+  clientEmail        String?      @map("client_email")
+  clientBusinessName String       @map("client_business_name")
+  domainChoice       String       @map("domain_choice")
+  packageType        PackageTier  @default(UMKM) @map("package_type")
+
+  // Commercial Split: 60% Mitra, 40% Perusahaan
+  packagePrice       Decimal      @default(499000.00) @map("package_price") @db.Decimal(12, 2)
+  discountApplied    Decimal      @default(0.00) @map("discount_applied") @db.Decimal(12, 2)
+  finalAmount        Decimal      @default(499000.00) @map("final_amount") @db.Decimal(12, 2)
+  commissionMitra    Decimal      @default(299400.00) @map("commission_mitra") @db.Decimal(12, 2)
+  shareCompany       Decimal      @default(199600.00) @map("share_company") @db.Decimal(12, 2)
+
+  // Status
+  orderStatus        OrderStatus  @default(PENDING_REVIEW) @map("order_status")
+  isSettledToMitra   Boolean      @default(false) @map("is_settled_to_mitra")
+  
+  // Specifics
+  productDetails     String?      @map("product_details")
+  targetAudience     String?      @map("target_audience")
+  specialNotes       String?      @map("special_notes")
+  ipAddress          String?      @map("ip_address")
+
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+  paidAt             DateTime?    @map("paid_at")
+
+  mitra              Mitra?       @relation(fields: [mitraId], references: [id], onDelete: SetNull)
+
+  @@index([mitraId])
+  @@index([orderStatus])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model MitraSettlement {
+  id                String           @id // e.g. "PAYOUT-202610-0012"
+  mitraId           String           @map("mitra_id")
+  periodStart       DateTime         @map("period_start") @db.Date
+  periodEnd         DateTime         @map("period_end") @db.Date
+  totalOrdersCount  Int              @default(0) @map("total_orders_count")
+  grossAmount       Decimal          @default(0.00) @map("gross_amount") @db.Decimal(12, 2)
+  netPayout         Decimal          @default(0.00) @map("net_payout") @db.Decimal(12, 2)
+
+  bankName          String           @map("bank_name")
+  accountNumber     String           @map("account_number")
+  accountHolder     String           @map("account_holder")
+  transferProofUrl  String?          @map("transfer_proof_url")
+  status            SettlementStatus @default(PENDING)
+
+  processedBy       String?          @map("processed_by")
+  transferredAt     DateTime?        @map("transferred_at")
+  createdAt         DateTime         @default(now()) @map("created_at")
+
+  mitra             Mitra            @relation(fields: [mitraId], references: [id], onDelete: Restrict)
+
+  @@index([mitraId])
+  @@index([status])
+  @@map("mitra_settlements")
+}

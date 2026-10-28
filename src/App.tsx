@@ -25,14 +25,63 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { FloatingShare } from './components/FloatingShare';
 import { BackToTop } from './components/BackToTop';
 import { PromoModal } from './components/PromoModal';
-import { Sparkles, ArrowRight, MessageCircle, FileEdit, PhoneCall, ShieldCheck, Tag, Lock, Briefcase, GraduationCap } from 'lucide-react';
+import { ReplikaPartnerBanner } from './components/ReplikaPartnerBanner';
+import { MitraAccount } from './types/mitra';
+import { findMitraBySlug, trackReferralVisit } from './utils/mitraStorage';
+import {
+  Sparkles,
+  ArrowRight,
+  MessageCircle,
+  FileEdit,
+  PhoneCall,
+  ShieldCheck,
+  Tag,
+  Lock,
+  Briefcase,
+  GraduationCap,
+  AlertCircle,
+  X,
+  ExternalLink,
+  Globe,
+  UserCheck,
+} from 'lucide-react';
 import { ADMIN_WA_NUMBER, ADMIN_WA_DISPLAY } from './types/order';
 
 export default function App() {
+  const detectReplicaSlug = (): string | null => {
+    try {
+      const hash = window.location.hash || '';
+      const path = window.location.pathname || '';
+      const search = window.location.search || '';
+
+      // Match /reff/:slug in pathname
+      const pathMatch = path.match(/\/reff\/([a-zA-Z0-9_-]+)/i);
+      if (pathMatch && pathMatch[1]) return pathMatch[1].toLowerCase();
+
+      // Match #/reff/:slug or #reff/:slug in hash
+      const hashMatch = hash.match(/#\/?reff\/([a-zA-Z0-9_-]+)/i);
+      if (hashMatch && hashMatch[1]) return hashMatch[1].toLowerCase();
+
+      // Match query ?ref=:slug or ?reff=:slug
+      const urlParams = new URLSearchParams(search);
+      const queryRef = urlParams.get('ref') || urlParams.get('reff');
+      if (queryRef) return queryRef.toLowerCase();
+
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   const getTabFromHash = (): PageTab => {
     const hash = (window.location.hash || '').toLowerCase();
     const search = (window.location.search || '').toLowerCase();
     const path = (window.location.pathname || '').toLowerCase();
+
+    // If it's pure replica route, default to home tab
+    if (hash.includes('reff/') || path.includes('/reff/')) {
+      return 'home';
+    }
 
     const isMatch = (keys: string[]) =>
       keys.some((k) => hash.includes(k) || search.includes(k) || path.includes('/' + k));
@@ -48,17 +97,67 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState<PageTab>(getTabFromHash);
   const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
+  const [fallbackWarning, setFallbackWarning] = useState<string | null>(null);
+
+  // Active replica partner state
+  const [activeReplikaPartner, setActiveReplikaPartner] = useState<MitraAccount | null>(() => {
+    const slug = detectReplicaSlug();
+    if (slug) {
+      const partner = findMitraBySlug(slug);
+      if (partner && partner.status === 'APPROVED') {
+        trackReferralVisit(partner.slug);
+        return partner;
+      }
+    }
+    return null;
+  });
 
   // Sync with browser hash / history (back/forward button & direct URL access)
   useEffect(() => {
     const handleUrlChange = () => {
       setActiveTab(getTabFromHash());
+      const slug = detectReplicaSlug();
+      if (slug) {
+        const partner = findMitraBySlug(slug);
+        if (partner) {
+          if (partner.status === 'APPROVED') {
+            setActiveReplikaPartner(partner);
+            trackReferralVisit(partner.slug);
+            setFallbackWarning(null);
+          } else {
+            setActiveReplikaPartner(null);
+            setFallbackWarning(
+              `Mitra rujukan "${slug}" berstatus ${partner.status === 'PENDING_APPROVAL' ? 'MENUNGGU PERSETUJUAN ADMIN' : 'DIBLOKIR/TIDAK AKTIF'}. Anda dialihkan ke landing page utama.`
+            );
+          }
+        } else {
+          setActiveReplikaPartner(null);
+          setFallbackWarning(
+            `Tautan Web Replika "/reff/${slug}" tidak ditemukan. Anda dialihkan ke landing page utama resmi PT INOVASI TEKNOLOGI DIGITAL INDONESIA.`
+          );
+        }
+      }
     };
+
     window.addEventListener('hashchange', handleUrlChange);
     window.addEventListener('popstate', handleUrlChange);
+
+    const handleCustomOpenReplica = (e: any) => {
+      if (e.detail) {
+        const partner = findMitraBySlug(e.detail);
+        if (partner && partner.status === 'APPROVED') {
+          setActiveReplikaPartner(partner);
+          setActiveTab('home');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    };
+    window.addEventListener('open-replica-partner', handleCustomOpenReplica);
+
     return () => {
       window.removeEventListener('hashchange', handleUrlChange);
       window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('open-replica-partner', handleCustomOpenReplica);
     };
   }, []);
 
@@ -131,6 +230,41 @@ export default function App() {
     <div className="min-h-screen w-full max-w-full overflow-x-hidden relative bg-white text-slate-900 flex flex-col font-sans selection:bg-sky-200 selection:text-sky-900">
       {/* Top Flash Sale Countdown Urgency Bar */}
       <TopFlashSaleBar />
+
+      {/* Dynamic Web Replika Partner Profile Banner (If visiting via /reff/:namamitra) */}
+      {activeReplikaPartner && (
+        <ReplikaPartnerBanner
+          partner={activeReplikaPartner}
+          onNavigateToOrder={() => {
+            handleTabChange('order');
+            setTimeout(() => {
+              const el = document.getElementById('form-order') || document.getElementById('formulir-order');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 250);
+          }}
+          onExitReplica={() => {
+            setActiveReplikaPartner(null);
+            window.location.hash = '#/home';
+          }}
+        />
+      )}
+
+      {/* Fallback Notification Toast if referral link was invalid or pending */}
+      {fallbackWarning && (
+        <div className="bg-amber-400 text-slate-950 px-4 py-2.5 text-xs font-bold flex items-center justify-between gap-3 shadow-md border-b border-amber-500 z-50">
+          <div className="flex items-center gap-2 max-w-5xl mx-auto min-w-0">
+            <AlertCircle className="w-4 h-4 text-slate-950 shrink-0" />
+            <span className="truncate">{fallbackWarning}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFallbackWarning(null)}
+            className="p-1 hover:bg-black/10 rounded-lg text-slate-950 cursor-pointer shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Light blue navbar with 3 Navigation Tabs: Home, Form Order, Kontak Kami */}
       <Navbar activeTab={activeTab} onTabChange={handleTabChange} />
@@ -228,7 +362,7 @@ export default function App() {
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
             >
-              <OrderFormSection />
+              <OrderFormSection activePartner={activeReplikaPartner} />
             </motion.div>
 
             {/* Testimonials from UMKM Owners */}
@@ -310,6 +444,7 @@ export default function App() {
             <OrderPageSection
               onNavigateToHome={() => handleTabChange('home')}
               onNavigateToContact={() => handleTabChange('kontak')}
+              activePartner={activeReplikaPartner}
             />
           </motion.div>
         )}
@@ -389,11 +524,116 @@ export default function App() {
         )}
       </main>
 
+      {/* Quick Test Toolbar for Web Replika & Referral Tracking */}
+      <aside aria-label="Demo Bar Pengujian Web Replika" className="bg-slate-900 border-t border-cyan-500/30 text-white py-3 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="font-black text-cyan-300 uppercase tracking-wider text-[11px]">
+              Simulasi Web Replika (/reff/:namamitra):
+            </span>
+            {activeReplikaPartner ? (
+              <span className="text-[10px] bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 px-2 py-0.5 rounded-full font-bold">
+                Aktif: {activeReplikaPartner.namaLengkap}
+              </span>
+            ) : (
+              <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">
+                Mode: Web Utama Standar
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveReplikaPartner(null);
+                handleTabChange('home');
+              }}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                !activeReplikaPartner && activeTab === 'home'
+                  ? 'bg-sky-500 text-white'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              🌐 Web Utama
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = '#/reff/prima-aldino';
+                const p = findMitraBySlug('prima-aldino');
+                if (p) setActiveReplikaPartner(p);
+                setActiveTab('home');
+              }}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                activeReplikaPartner?.slug === 'prima-aldino'
+                  ? 'bg-emerald-500 text-white shadow-xs'
+                  : 'bg-slate-800 text-emerald-300 hover:bg-slate-700'
+              }`}
+            >
+              ⭐ /reff/prima-aldino
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = '#/reff/padilah-ramadhan';
+                const p = findMitraBySlug('padilah-ramadhan');
+                if (p) setActiveReplikaPartner(p);
+                setActiveTab('home');
+              }}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                activeReplikaPartner?.slug === 'padilah-ramadhan'
+                  ? 'bg-emerald-500 text-white shadow-xs'
+                  : 'bg-slate-800 text-emerald-300 hover:bg-slate-700'
+              }`}
+            >
+              ⭐ /reff/padilah-ramadhan
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                window.location.hash = '#/reff/siti-rahmawati';
+                // Trigger fallback since Siti is PENDING
+                setActiveReplikaPartner(null);
+                setFallbackWarning(
+                  'Mitra rujukan "siti-rahmawati" berstatus MENUNGGU PERSETUJUAN ADMIN. Anda otomatis dialihkan ke halaman utama tanpa penanda referal.'
+                );
+                setActiveTab('home');
+              }}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-950/80 text-amber-300 border border-amber-600/50 hover:bg-amber-900 transition-all cursor-pointer"
+              title="Uji coba fallback jika mitra belum di-approve"
+            >
+              ⚠️ Uji Fallback (Siti - Pending)
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleTabChange('kemitraan')}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-sky-300 hover:bg-slate-700 transition-all cursor-pointer"
+            >
+              👤 Dashboard Mitra
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleTabChange('admin')}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-indigo-300 hover:bg-slate-700 transition-all cursor-pointer"
+            >
+              🛡️ Admin (Tabel Replika)
+            </button>
+          </div>
+        </div>
+      </aside>
+
       {/* Footer with 3 navtabs support */}
       <Footer onTabChange={handleTabChange} />
 
-      {/* Floating WhatsApp Quick Action */}
-      <FloatingWhatsApp />
+      {/* Floating WhatsApp Quick Action (Dynamically routed to partner if on replica page) */}
+      <FloatingWhatsApp partner={activeReplikaPartner} />
 
       {/* Floating Web Share Button (WhatsApp, Telegram, Email, Sosmed) */}
       <FloatingShare />

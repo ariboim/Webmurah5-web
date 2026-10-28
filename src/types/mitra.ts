@@ -25,9 +25,31 @@ export interface MitraAccount {
   fotoUrl?: string;
   signatureDataUrl?: string;
 
+  // Referral & Replica attributes
+  slug: string; // e.g. "prima-aldino", used in www.webmurah.biz.id/reff/:namamitra
+  phoneInternational: string; // e.g. "6285811735280"
+  referralClicks?: number;
+  referralLeads?: number;
+  referralOrders?: number;
+  totalKomisi?: number;
+
   // Partnership agreement metadata
   nomorSuratPerjanjian?: string;
   tanggalBergabung?: string;
+}
+
+export interface ReferralLeadRecord {
+  id: string;
+  mitraId: string;
+  mitraSlug: string;
+  mitraName: string;
+  clientName: string;
+  clientPhone: string;
+  clientPackage: 'umkm' | 'elite';
+  domainQuery?: string;
+  timestamp: string;
+  status: 'PENDING' | 'CLOSED_DEAL' | 'CANCELLED';
+  commissionAmount: number;
 }
 
 export interface CopywritingTemplate {

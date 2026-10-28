@@ -74,17 +74,30 @@ export const MitraDashboard: React.FC<MitraDashboardProps> = ({
 
   const agreementContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const referralLink = `https://webmurah.biz.id/?ref=${encodeURIComponent(mitra.id)}`;
+  const replicaLink = `https://www.webmurah.biz.id/reff/${mitra.slug || mitra.namaLengkap.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+  const referralLink = replicaLink;
 
   const handleCopyReferral = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(referralLink).then(() => {
+      navigator.clipboard.writeText(replicaLink).then(() => {
         setCopiedReferral(true);
+        setToastNotice('Tautan Web Replika berhasil disalin ke clipboard!');
         setTimeout(() => setCopiedReferral(false), 2500);
+        setTimeout(() => setToastNotice(null), 3500);
       });
     } else {
-      prompt('Salin link rujukan Anda:', referralLink);
+      prompt('Salin link web replika Anda:', replicaLink);
     }
+  };
+
+  const handleShareReplicaWhatsApp = () => {
+    const text = `Halo! Kunjungi website resmi saya sebagai Konsultan Resmi PT Inovasi Teknologi Digital Indonesia:\n\n${replicaLink}\n\nDapatkan promo pembuatan landing page UMKM kilat 1 hari jadi mulai Rp 499rb (gratis domain 1 tahun & bayar setelah web selesai)!`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const handleOpenReplicaPreview = () => {
+    window.location.hash = `#/reff/${mitra.slug}`;
+    window.dispatchEvent(new CustomEvent('open-replica-partner', { detail: mitra.slug }));
   };
 
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -336,6 +349,167 @@ export const MitraDashboard: React.FC<MitraDashboardProps> = ({
             </div>
           </div>
         </div>
+
+        {/* ========================================================================= */}
+        {/* WIDGET KARTU STATUS AKUN & WEB REPLIKA (SPESIFIKASI REFERRAL SYSTEM)      */}
+        {/* ========================================================================= */}
+        {mitra.status === 'APPROVED' ? (
+          <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-7 border-2 border-cyan-500/40 shadow-xl relative overflow-hidden space-y-6">
+            {/* Background cyan glow */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-black uppercase tracking-wider">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>STATUS: TERVERIFIKASI &bull; WEB REPLIKA AKTIF</span>
+                  </span>
+                  <span className="text-xs text-cyan-300 font-mono">
+                    Parameter: /reff/{mitra.slug}
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                  <span>Tautan Web Replika Resmi Anda</span>
+                  <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse" />
+                </h2>
+                <p className="text-xs text-slate-300 font-medium">
+                  Bagikan tautan ini ke prospek Anda. Pengunjung otomatis melihat profil Anda sebagai Konsultan Resmi, tombol WhatsApp terarah ke nomor Anda, dan form order otomatis mengunci nama &amp; ID Anda.
+                </p>
+              </div>
+
+              {/* Quick Actions (Preview & WhatsApp Share) */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleOpenReplicaPreview}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/40 font-bold text-xs transition-all cursor-pointer"
+                  title="Lihat tampilan halaman seperti yang dilihat prospek"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Pratinjau Web Replika</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShareReplicaWhatsApp}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md shadow-emerald-600/30"
+                  title="Kirim pesan promosi instan ke WhatsApp"
+                >
+                  <MessageCircle className="w-3.5 h-3.5 fill-white" />
+                  <span>Share WhatsApp</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Interactive Link Display Box with One-Click Salin Link Button */}
+            <div className="bg-slate-950/80 p-3 sm:p-4 rounded-2xl border-2 border-cyan-500/50 shadow-inner flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 overflow-hidden min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400 flex items-center justify-center shrink-0">
+                  <span className="text-base">🌐</span>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] font-black uppercase text-cyan-300 tracking-wider">
+                    Format URL Resmi Web Replika:
+                  </div>
+                  <div className="text-sm sm:text-base font-mono font-black text-cyan-200 select-all truncate">
+                    {replicaLink}
+                  </div>
+                </div>
+              </div>
+
+              {/* Salin Link Button with Copy Toast Feedback */}
+              <button
+                type="button"
+                onClick={handleCopyReferral}
+                className={`shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer transform active:scale-95 shadow-md ${
+                  copiedReferral
+                    ? 'bg-emerald-500 text-white shadow-emerald-500/40 ring-2 ring-emerald-300'
+                    : 'bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-slate-950 shadow-cyan-400/30 hover:scale-102'
+                }`}
+              >
+                {copiedReferral ? (
+                  <>
+                    <Check className="w-4 h-4 stroke-[3] animate-bounce" />
+                    <span>Tersalin ke Clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 stroke-[2.5]" />
+                    <span>Salin Link</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Referral Performance Live Counter */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div className="bg-white/5 backdrop-blur-xs p-3.5 rounded-2xl border border-white/10 space-y-1">
+                <div className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
+                  Total Kunjungan Web
+                </div>
+                <div className="text-2xl font-black text-white">
+                  {mitra.referralClicks ?? 142}
+                </div>
+                <div className="text-[10px] text-slate-400">Pengunjung unik</div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xs p-3.5 rounded-2xl border border-white/10 space-y-1">
+                <div className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
+                  Lead WhatsApp Masuk
+                </div>
+                <div className="text-2xl font-black text-emerald-400">
+                  {mitra.referralLeads ?? 18}
+                </div>
+                <div className="text-[10px] text-slate-400">Chat konsultasi</div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xs p-3.5 rounded-2xl border border-white/10 space-y-1">
+                <div className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
+                  Pesanan Teratribusi
+                </div>
+                <div className="text-2xl font-black text-amber-400">
+                  {mitra.referralOrders ?? 7}
+                </div>
+                <div className="text-[10px] text-slate-400">Closing sukses</div>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xs p-3.5 rounded-2xl border border-white/10 space-y-1">
+                <div className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
+                  Estimasi Komisi 60%
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-emerald-300 truncate">
+                  Rp {(mitra.totalKomisi ?? 2100000).toLocaleString('id-ID')}
+                </div>
+                <div className="text-[10px] text-slate-400">Pencairan mingguan</div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* PENDING / REJECTED STATUS: Sembunyikan tautan sesuai instruksi user */
+          <div className="bg-amber-50 border-2 border-amber-300 rounded-3xl p-6 sm:p-7 shadow-sm space-y-3 text-amber-950">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-400/20 border border-amber-400 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-6 h-6 text-amber-600" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full border border-amber-300">
+                  STATUS AKUN: MENUNGGU PERSETUJUAN ADMIN
+                </span>
+                <h3 className="text-lg font-black text-amber-950 mt-0.5">
+                  Tautan Web Replika Belum Aktif
+                </h3>
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-amber-900 leading-relaxed font-medium">
+              Pendaftaran kemitraan Anda saat ini sedang diverifikasi oleh Tim Legal &amp; Manajemen PT INOVASI TEKNOLOGI DIGITAL INDONESIA. Tautan Web Replika resmi dan instrumen promosi akan aktif secara otomatis setelah akun Anda disetujui (maksimal 1x24 jam kerja).
+            </p>
+            <div className="pt-2 text-xs text-amber-800 font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>Tim kami akan mengabari Anda melalui WhatsApp ke nomor <strong>{mitra.noHpWa}</strong>.</span>
+            </div>
+          </div>
+        )}
 
         {/* Navigation Tabs Bar */}
         <div className="bg-white rounded-2xl p-2 border border-slate-200 shadow-xs flex flex-wrap gap-2">

@@ -12,8 +12,10 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
   {
     "id": "ITDI-MTR-2026-5652",
     "namaLengkap": "Prima aldino",
+    "slug": "prima-aldino",
     "email": "1primaaldino@gmail.com",
     "noHpWa": "085811735280",
+    "phoneInternational": "6285811735280",
     "password": "mitra123",
     "status": "APPROVED",
     "createdAt": "2026-10-27T06:30:00Z",
@@ -33,8 +35,10 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
   {
     "id": "ITDI-MTR-2026-6075",
     "namaLengkap": "Padilah ramadhan",
+    "slug": "padilah-ramadhan",
     "email": "padilahramadhan002@gmail.com",
     "noHpWa": "087874805975",
+    "phoneInternational": "6287874805975",
     "password": "mitra123",
     "status": "APPROVED",
     "createdAt": "2026-10-27T06:35:00Z",
@@ -54,8 +58,10 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
   {
     id: 'ITDI-MTR-2026-0018',
     namaLengkap: 'Budi Santoso, S.Kom',
+    slug: 'budi-santoso',
     email: 'budi.santoso@gmail.com',
     noHpWa: '081234567890',
+    phoneInternational: '6281234567890',
     password: 'mitra123',
     status: 'APPROVED',
     createdAt: '2026-10-12T08:30:00Z',
@@ -74,8 +80,10 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
   {
     id: 'ITDI-MTR-2026-0024',
     namaLengkap: 'Siti Rahmawati',
+    slug: 'siti-rahmawati',
     email: 'siti.rahma@yahoo.com',
     noHpWa: '085712348899',
+    phoneInternational: '6285712348899',
     password: 'mitra123',
     status: 'PENDING_APPROVAL',
     createdAt: '2026-10-24T14:15:00Z',
@@ -93,8 +101,10 @@ const INITIAL_MITRA_SEED: MitraAccount[] = [
   {
     id: 'ITDI-MTR-2026-0031',
     namaLengkap: 'Deni Hendrawan',
+    slug: 'deni-hendrawan',
     email: 'deni.hendrawan@gmail.com',
     noHpWa: '081399887766',
+    phoneInternational: '6281399887766',
     password: 'mitra123',
     status: 'BLOCKED',
     createdAt: '2026-09-18T10:00:00Z',
@@ -209,11 +219,17 @@ export function registerMitraBackend(payload: RegisterMitraServerPayload): {
   });
   const randomCode = Math.floor(1000 + Math.random() * 9000);
 
+  const cleanPhoneDigits = payload.noHpWa.replace(/\D/g, '');
+  const phoneIntl = cleanPhoneDigits.startsWith('0') ? '62' + cleanPhoneDigits.slice(1) : cleanPhoneDigits;
+  const rawSlug = payload.namaLengkap.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+
   const newMitra: MitraAccount = {
     id: payload.id || generateMitraId(),
     namaLengkap: payload.namaLengkap.trim(),
+    slug: rawSlug,
     email: cleanEmail,
     noHpWa: payload.noHpWa.trim(),
+    phoneInternational: phoneIntl,
     password: payload.password?.trim() || 'mitra123',
     status: payload.status || 'PENDING_APPROVAL',
     createdAt: new Date().toISOString(),

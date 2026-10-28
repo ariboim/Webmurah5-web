@@ -4,14 +4,18 @@ import { OrderFlowSection } from './OrderFlowSection';
 import { OrderFormSection } from './OrderFormSection';
 import { ADMIN_WA_NUMBER, ADMIN_WA_DISPLAY } from '../types/order';
 
+import { MitraAccount } from '../types/mitra';
+
 interface OrderPageSectionProps {
   onNavigateToHome?: () => void;
   onNavigateToContact?: () => void;
+  activePartner?: MitraAccount | null;
 }
 
 export const OrderPageSection: React.FC<OrderPageSectionProps> = ({
   onNavigateToHome,
   onNavigateToContact,
+  activePartner,
 }) => {
   return (
     <div className="py-8 sm:py-12 bg-slate-50/40">
@@ -59,7 +63,7 @@ export const OrderPageSection: React.FC<OrderPageSectionProps> = ({
         <OrderFlowSection />
 
         {/* The Exact Order Form with Unified Domain Checker */}
-        <OrderFormSection />
+        <OrderFormSection activePartner={activePartner} />
 
         {/* Help Banner */}
         <div className="p-6 bg-white rounded-3xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
