@@ -1026,12 +1026,12 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                   </div>
 
                   <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 self-start sm:self-center">
-                    ✓ Atribusi Penjualan 100% Terkunci
+                    ✓ Konsultan Resmi Terverifikasi
                   </span>
                 </div>
 
                 <p className="text-[11px] text-emerald-800 font-medium leading-relaxed">
-                  Pemesanan Anda diproses dengan pendampingan langsung oleh <strong>{activePartner.namaLengkap}</strong>. Komisi kemitraan resmi 60% otomatis teratribusi ke akun mitra bersangkutan.
+                  Pemesanan Anda diproses dengan pendampingan langsung oleh <strong>{activePartner.namaLengkap}</strong> selaku Konsultan Resmi PT Inovasi Teknologi Digital Indonesia.
                 </p>
 
                 {/* Hidden input to guarantee attribution value is submitted */}
@@ -1577,7 +1577,7 @@ export const OrderFormSection: React.FC<{ activePartner?: MitraAccount | null }>
                 {activePartner && activePartner.status === 'APPROVED' ? (
                   <span>
                     Formulir ini otomatis terhubung langsung ke <strong>WhatsApp Konsultan Sales: {activePartner.namaLengkap}</strong> di nomor{' '}
-                    <strong className="font-bold text-emerald-800">{activePartner.noHpWa || activePartner.phoneInternational}</strong> (Nama konsultan terkunci otomatis &amp; komisi 60% teratribusi).
+                    <strong className="font-bold text-emerald-800">{activePartner.noHpWa || activePartner.phoneInternational}</strong> (Konsultan Resmi Terverifikasi).
                   </span>
                 ) : (
                   <span>

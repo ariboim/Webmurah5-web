@@ -85,7 +85,6 @@ export function formatOrderToWhatsApp(
     ``,
     `*KONSULTAN SALES MITRA:* ${consultantName}`,
     replicaLink ? `*WEB REPLIKA SUMBER:* ${replicaLink}` : null,
-    partner ? `*ATRIBUSI KOMISI:* 60% Hak Mitra Terkunci Otomatis` : null,
     ``,
     `*1. DATA KLIEN*`,
     `• *Nama Lengkap / PIC:* ${data.namaLengkap || '-'}`,

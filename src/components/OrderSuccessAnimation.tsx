@@ -376,8 +376,8 @@ export const OrderSuccessAnimation: React.FC<OrderSuccessAnimationProps> = ({
                   {partner && (
                     <div className="col-span-2 pt-2 border-t border-emerald-200/80 bg-emerald-50/80 p-2.5 rounded-xl space-y-0.5">
                       <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-emerald-800">
-                        <span>Konsultan Sales Mitra Terkunci:</span>
-                        <span className="text-emerald-700 font-bold">Komisi 60% Aktif</span>
+                        <span>Konsultan Sales Pendamping:</span>
+                        <span className="text-emerald-700 font-bold">Terverifikasi Resmi</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-extrabold text-slate-900">
