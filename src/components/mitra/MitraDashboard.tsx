@@ -549,7 +549,7 @@ export const MitraDashboard: React.FC<MitraDashboardProps> = ({
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>3 Style Brosur A4</span>
+            <span>3 Model Brosur (1/2 A4)</span>
           </button>
 
           <button
