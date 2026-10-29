@@ -706,27 +706,14 @@ export const IdCardMaker: React.FC<IdCardMakerProps> = ({ mitra, onUpdateMitra }
                               </div>
                             </div>
 
-                            {/* Sleek Geometric Tech Logo on upper right */}
-                            <div className="relative shrink-0">
-                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-600 to-indigo-900 p-0.5 shadow-[0_0_12px_rgba(0,240,255,0.6)] flex items-center justify-center">
-                                <div className="w-full h-full bg-slate-950 rounded-[7px] flex items-center justify-center relative overflow-hidden">
-                                  {/* Hexagonal Tech Node Icon */}
-                                  <svg
-                                    className="w-5 h-5 text-cyan-400"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  >
-                                    <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
-                                    <line x1="12" y1="22" x2="12" y2="15.5" />
-                                    <polyline points="22 8.5 12 15.5 2 8.5" />
-                                    <circle cx="12" cy="8.5" r="2" fill="#00f0ff" />
-                                  </svg>
-                                </div>
-                              </div>
+                            {/* Official IndoDigital Logo Emblem on upper right (Transparent, no frame border, matching cyan contour) */}
+                            <div className="relative shrink-0 flex items-center justify-center">
+                              <img
+                                src="/assets/aistudio/indo_digital_card_logo_transparent.png"
+                                alt="Logo Indo Digital"
+                                className="w-9 h-9 object-contain select-none pointer-events-none drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]"
+                                style={{ background: 'transparent' }}
+                              />
                             </div>
                           </div>
                         </div>
@@ -1005,8 +992,16 @@ export const IdCardMaker: React.FC<IdCardMakerProps> = ({ mitra, onUpdateMitra }
 
                         {/* FOOTER DETAILS (COMPANY INFO) */}
                         <div className="border-t border-cyan-500/30 pt-2 text-left space-y-1">
-                          <div className="text-[7.5px] font-bold text-white leading-tight">
-                            PT INOVASI TEKNOLOGI DIGITAL INDONESIA
+                          <div className="flex items-center gap-1.5">
+                            <img
+                              src="/assets/aistudio/indo_digital_card_logo_transparent.png"
+                              alt="IndoDigital Emblem"
+                              className="w-4 h-4 object-contain shrink-0"
+                              style={{ background: 'transparent' }}
+                            />
+                            <div className="text-[7.5px] font-bold text-white leading-tight">
+                              PT INOVASI TEKNOLOGI DIGITAL INDONESIA
+                            </div>
                           </div>
 
                           <div className="text-[7px] text-slate-300 leading-snug">
